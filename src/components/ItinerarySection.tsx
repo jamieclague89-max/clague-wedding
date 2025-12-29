@@ -190,7 +190,7 @@ const defaultCeremonyEvents: EventProps[] = [
   },
   {
     time: "3:30 PM",
-    title: "Cocktail Hour",
+    title: "Wedding Photos",
     location: "Garden Terrace",
     venue: "Riverside Manor, 456 Garden Way",
     description:
