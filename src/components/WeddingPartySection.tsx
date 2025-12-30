@@ -30,64 +30,54 @@ interface WeddingPartySectionProps {
 const defaultBridesmaids: PartyMember[] = [
   {
     name: "Emma Tracey",
-    image:
-      "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&q=80",
+    image: "/images/Emma Tracey.png",
     tagline: "Most likely to make everyone laugh",
     role: "Maid of Honour",
   },
   {
     name: "Sarah Boyd",
-    image:
-      "https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?w=400&q=80",
+    image: "/images/Sarah Boyd.png",
     tagline: "Most likely to make everyone laugh",
     role: "Maid of Honour",
   },
   {
     name: "Laura Holiday",
-    image:
-      "https://images.unsplash.com/photo-1606663889134-b1dedb5ed8b7?w=400&q=80",
+    image: "/images/Laura Holiday.png?v=2",
     tagline: "Most likely to make everyone laugh",
   },
   {
     name: "Emma Fulton",
-    image:
-      "https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?w=400&q=80",
+    image: "/images/Emma Fulton.png",
     tagline: "Most likely to plan the perfect party",
   },
   {
     name: "Lauren Burns",
-    image:
-      "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&q=80",
+    image: "/images/Lauren Burns.png",
     tagline: "Most likely to give the best advice",
   },
   {
     name: "Carlene Hallsall",
-    image:
-      "https://images.unsplash.com/photo-1606663889134-b1dedb5ed8b7?w=400&q=80",
+    image: "/images/Carlene Halsall.png",
     tagline: "Most likely to be the life of the party",
   },
   {
     name: "Ellie Callow",
-    image:
-      "https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?w=400&q=80",
+    image: "/images/Ellie Callow.png",
     tagline: "Most likely to start a dance party",
   },
   {
     name: "Alexis Callow",
-    image:
-      "https://images.unsplash.com/photo-1594744803329-e58b31de8bf5?w=400&q=80",
+    image: "/images/Lexi Callow.png",
     tagline: "Most likely to keep everyone organized",
   },
   {
     name: "Emma Callow",
-    image:
-      "https://images.unsplash.com/photo-1606663889134-b1dedb5ed8b7?w=400&q=80",
+    image: "/images/Emma Callow.png",
     tagline: "Most likely to have the best stories",
   },
   {
     name: "Jasmine Johnstone",
-    image:
-      "https://images.unsplash.com/photo-1595959183082-7b570b7e08e2?w=400&q=80",
+    image: "/images/Jasmine Johnstone.png",
     tagline: "Most likely to bring the energy",
   },
 ];
@@ -95,39 +85,33 @@ const defaultBridesmaids: PartyMember[] = [
 const defaultGroomsmen: PartyMember[] = [
   {
     name: "William Penhallurick",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+    image: "/images/William Penhallurick.png",
     tagline: "Most likely to tell dad jokes",
     role: "Best Man",
   },
   {
     name: "Stephen Lovelady-Wakenshaw",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
+    image: "/images/Stephen Lovelady Wakenshaw.png",
     tagline: "Most likely to tell dad jokes",
   },
   {
     name: "Oliver Bennett",
-    image:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&q=80",
+    image: "/images/Oliver Bennett.png?v=2",
     tagline: "Most likely to be the designated driver",
   },
   {
     name: "Darren Shields",
-    image:
-      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&q=80",
+    image: "/images/Darren Shields.png?v=2",
     tagline: "Most likely to start a dance battle",
   },
   {
     name: "Daniel Pennington",
-    image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&q=80",
+    image: "/images/Daniel Pennington.png",
     tagline: "Most likely to give the best toast",
   },
   {
     name: "Lee Shields",
-    image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&q=80",
+    image: "/images/Lee Shields.png?v=2",
     tagline: "Most likely to keep everyone entertained",
   },
 ];
