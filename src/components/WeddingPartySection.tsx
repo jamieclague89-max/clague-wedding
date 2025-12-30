@@ -29,90 +29,103 @@ interface WeddingPartySectionProps {
 
 const defaultBridesmaids: PartyMember[] = [
   {
+    name: "Alexandra Hilton",
+    image: "/images/Alexandra Hilton.png?v=2",
+    tagline: "Most likely to be late for her own wedding",
+    role: "Bride",
+  },
+  {
     name: "Emma Tracey",
     image: "/images/Emma Tracey.png",
-    tagline: "Most likely to make everyone laugh",
+    tagline: "Most likely to be the first on the dancefloor",
     role: "Maid of Honour",
   },
   {
     name: "Sarah Boyd",
     image: "/images/Sarah Boyd.png",
-    tagline: "Most likely to make everyone laugh",
+    tagline: "Most likely to have a glass of wine in hand",
     role: "Maid of Honour",
   },
   {
     name: "Laura Holiday",
     image: "/images/Laura Holiday.png?v=2",
-    tagline: "Most likely to make everyone laugh",
+    tagline: "Most likely to keep everyone in order",
   },
   {
-    name: "Emma Fulton",
-    image: "/images/Emma Fulton.png",
-    tagline: "Most likely to plan the perfect party",
-  },
-  {
-    name: "Lauren Burns",
+    name: "Lauren Woods",
     image: "/images/Lauren Burns.png",
-    tagline: "Most likely to give the best advice",
+    tagline: "Most likely to have hugged everyone at the wedding by 9PM",
   },
   {
     name: "Carlene Hallsall",
     image: "/images/Carlene Halsall.png",
-    tagline: "Most likely to be the life of the party",
+    tagline:
+      "Most likely to have an emergency stash of snacks, tissues and plasters in her bag",
   },
   {
-    name: "Ellie Callow",
-    image: "/images/Ellie Callow.png",
-    tagline: "Most likely to start a dance party",
-  },
-  {
-    name: "Alexis Callow",
-    image: "/images/Lexi Callow.png",
-    tagline: "Most likely to keep everyone organized",
+    name: "Emma Fulton",
+    image: "/images/Emma Fulton.png",
+    tagline: "Most likely to be taking a selfie",
   },
   {
     name: "Emma Callow",
     image: "/images/Emma Callow.png",
-    tagline: "Most likely to have the best stories",
+    tagline: "Most likely to be taking a nap",
   },
   {
     name: "Jasmine Johnstone",
     image: "/images/Jasmine Johnstone.png",
-    tagline: "Most likely to bring the energy",
+    tagline: "Most likely to be the first person to find the prosecco",
+  },
+  {
+    name: "Ellie Callow",
+    image: "/images/Ellie Callow.png",
+    tagline: "Most likely to be the first to locate the wedding cake",
+  },
+  {
+    name: "Alexis Callow",
+    image: "/images/Lexi Callow.png",
+    tagline: "Most likely to steal your prosecco when your back is turned",
   },
 ];
 
 const defaultGroomsmen: PartyMember[] = [
   {
+    name: "Jamie Clague",
+    image: "/images/Jamie Clague.png?v=2",
+    tagline: "Most likely to forget the date of his wedding",
+    role: "Groom",
+  },
+  {
     name: "William Penhallurick",
     image: "/images/William Penhallurick.png",
-    tagline: "Most likely to tell dad jokes",
+    tagline: "Most likely to get the shots and keep the party going",
     role: "Best Man",
   },
   {
     name: "Stephen Lovelady-Wakenshaw",
     image: "/images/Stephen Lovelady Wakenshaw.png",
-    tagline: "Most likely to tell dad jokes",
+    tagline: "Most likely to start singing a football chant",
   },
   {
     name: "Oliver Bennett",
     image: "/images/Oliver Bennett.png?v=2",
-    tagline: "Most likely to be the designated driver",
+    tagline: "Most likely to have dice for any drinking games",
   },
   {
     name: "Darren Shields",
     image: "/images/Darren Shields.png?v=2",
-    tagline: "Most likely to start a dance battle",
+    tagline: "Most likely to be found on the drums",
   },
   {
     name: "Daniel Pennington",
     image: "/images/Daniel Pennington.png",
-    tagline: "Most likely to give the best toast",
+    tagline: "Most likely to be having a kick about",
   },
   {
     name: "Lee Shields",
     image: "/images/Lee Shields.png?v=2",
-    tagline: "Most likely to keep everyone entertained",
+    tagline: "Most likely to arrive early and keep everything running smoothly",
   },
 ];
 
@@ -197,7 +210,7 @@ const WeddingPartySection = ({
     <section
       className="px-4 bg-gray-50"
       id="wedding-party"
-      style={{ paddingTop: '7em', paddingBottom: '7em' }}
+      style={{ paddingTop: "7em", paddingBottom: "7em" }}
     >
       <div className="max-w-6xl mx-auto pt-[0px]">
         <motion.div
