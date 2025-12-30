@@ -182,8 +182,6 @@ const Ceremony = () => {
         <OtherInfoSection />
         {/* Gifting Section */}
         <GiftingSection />
-        {/* Couple Info Section */}
-        <CoupleInfoSection />
         {/* Photo Gallery Section */}
         <PhotoGallery />
         {/* RSVP Section */}

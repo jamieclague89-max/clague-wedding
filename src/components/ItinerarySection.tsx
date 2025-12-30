@@ -66,7 +66,11 @@ const ItinerarySection = ({
   showOnlyCeremony = false,
 }: ItinerarySectionProps) => {
   return (
-    <section className="px-4 bg-white h-fit w-full" id="itinerary" style={{ paddingTop: '7em', paddingBottom: '7em' }}>
+    <section
+      className="px-4 bg-white h-fit w-full"
+      id="itinerary"
+      style={{ paddingTop: "7em", paddingBottom: "7em" }}
+    >
       <div className="max-w-3xl mx-auto">
         <motion.div
           className="text-center mb-12"
@@ -94,7 +98,7 @@ const ItinerarySection = ({
               {/* Timeline line */}
               <div className="absolute left-2 top-8 bottom-8 w-0.5 bg-gray-300" />
 
-              <div className="space-y-0">
+              <div className="space-y-8">
                 {receptionEvents.map((event, index) => (
                   <Event
                     key={index}
@@ -112,7 +116,7 @@ const ItinerarySection = ({
               {/* Timeline line */}
               <div className="absolute left-2 top-8 bottom-8 w-0.5 bg-gray-300" />
 
-              <div className="space-y-0">
+              <div className="space-y-8">
                 {ceremonyEvents.map((event, index) => (
                   <Event
                     key={index}
@@ -137,7 +141,7 @@ const ItinerarySection = ({
                   {/* Timeline line */}
                   <div className="absolute left-2 top-8 bottom-8 w-0.5 bg-gray-300" />
 
-                  <div className="space-y-0">
+                  <div className="space-y-8">
                     {ceremonyEvents.map((event, index) => (
                       <Event
                         key={index}
@@ -157,7 +161,7 @@ const ItinerarySection = ({
                   {/* Timeline line */}
                   <div className="absolute left-2 top-8 bottom-8 w-0.5 bg-gray-300" />
 
-                  <div className="space-y-0">
+                  <div className="space-y-8">
                     {receptionEvents.map((event, index) => (
                       <Event
                         key={index}
@@ -181,20 +185,29 @@ const ItinerarySection = ({
 
 const defaultCeremonyEvents: EventProps[] = [
   {
-    time: "2:00 PM",
-    title: "Ceremony",
-    location: "St. Mary's Church",
-    venue: "123 Church Street, Downtown",
+    time: "15:15",
+    title: "Wedding Ceremony",
+    location: "Douglas Registry Office",
+    venue:
+      "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
     description:
-      "The wedding ceremony will take place in the beautiful St. Mary's Church. Please arrive 15 minutes early to be seated before the bride arrives.",
+      "An intimate wedding ceremony with our close family and friends.",
   },
   {
-    time: "3:30 PM",
+    time: "16:00",
     title: "Wedding Photos",
-    location: "Garden Terrace",
-    venue: "Riverside Manor, 456 Garden Way",
+    location: "Douglas Registry Office",
+    venue:
+      "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
     description:
-      "Following the ceremony, join us for drinks and hors d'oeuvres on the Garden Terrace while we take photos with family.",
+      "Following the ceremony, there will be the opportunity for professional photograpghs with the bride and groom and all guests.",
+  },
+  {
+    time: "16:30",
+    title: "New Event",
+    location: "Location Name",
+    venue: "Venue Address",
+    description: "Description of the new event.",
   },
 ];
 
