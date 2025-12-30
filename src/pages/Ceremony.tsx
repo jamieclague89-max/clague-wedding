@@ -1,15 +1,15 @@
 import React from "react";
-import HeroSection from "./HeroSection";
-import CoupleStorySection from "./CoupleStorySection";
-import ItinerarySection from "./ItinerarySection";
-import PhotoGallery from "./PhotoGallery";
-import RsvpForm from "./RsvpForm";
-import VenueSection from "./VenueSection";
-import WeddingPartySection from "./WeddingPartySection";
-import OtherInfoSection from "./OtherInfoSection";
-import GiftingSection from "./GiftingSection";
-import CoupleInfoSection from "./CoupleInfoSection";
-import { Button } from "./ui/button";
+import HeroSection from "@/components/HeroSection";
+import CoupleStorySection from "@/components/CoupleStorySection";
+import ItinerarySection from "@/components/ItinerarySection";
+import PhotoGallery from "@/components/PhotoGallery";
+import RsvpForm from "@/components/RsvpForm";
+import VenueSection from "@/components/VenueSection";
+import WeddingPartySection from "@/components/WeddingPartySection";
+import OtherInfoSection from "@/components/OtherInfoSection";
+import GiftingSection from "@/components/GiftingSection";
+import CoupleInfoSection from "@/components/CoupleInfoSection";
+import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
 const Ceremony = () => {

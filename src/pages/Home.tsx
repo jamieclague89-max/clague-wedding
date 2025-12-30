@@ -1,17 +1,17 @@
 import React from "react";
-import HeroSection from "./HeroSection";
-import CoupleStorySection from "./CoupleStorySection";
-import ItinerarySection from "./ItinerarySection";
-import PhotoGallery from "./PhotoGallery";
-import RsvpForm from "./RsvpForm";
-import VenueSection from "./VenueSection";
-import WeddingPartySection from "./WeddingPartySection";
-import OtherInfoSection from "./OtherInfoSection";
-import GiftingSection from "./GiftingSection";
-import { Button } from "./ui/button";
+import HeroSection from "@/components/HeroSection";
+import CoupleStorySection from "@/components/CoupleStorySection";
+import ItinerarySection from "@/components/ItinerarySection";
+import PhotoGallery from "@/components/PhotoGallery";
+import RsvpForm from "@/components/RsvpForm";
+import VenueSection from "@/components/VenueSection";
+import WeddingPartySection from "@/components/WeddingPartySection";
+import OtherInfoSection from "@/components/OtherInfoSection";
+import GiftingSection from "@/components/GiftingSection";
+import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
-const Reception = () => {
+const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
 
   const scrollToSection = (id: string) => {
@@ -171,12 +171,12 @@ const Reception = () => {
         </section>
         {/* Our Story Section */}
         <CoupleStorySection />
-        {/* Venue Section - Reception Tab Only */}
-        <VenueSection showOnlyReception={true} />
-        {/* Itinerary Section - Reception Tab Only */}
-        <ItinerarySection showOnlyReception={true} />
-        {/* Wedding Party Section - Groomsmen Tab Only */}
-        <WeddingPartySection showOnlyGroomsmen={true} />
+        {/* Venue Section */}
+        <VenueSection />
+        {/* Itinerary Section */}
+        <ItinerarySection />
+        {/* Wedding Party Section */}
+        <WeddingPartySection />
         {/* Other Info Section */}
         <OtherInfoSection />
         {/* Gifting Section */}
@@ -194,6 +194,20 @@ const Reception = () => {
           <p className="text-sm text-gray-400">
             We can't wait to celebrate with you!
           </p>
+          <div className="mt-6 flex justify-center gap-6">
+            <a 
+              href="/ceremony" 
+              className="text-sm text-gray-400 hover:text-white transition-colors underline"
+            >
+              Ceremony
+            </a>
+            <a 
+              href="/reception" 
+              className="text-sm text-gray-400 hover:text-white transition-colors underline"
+            >
+              Reception
+            </a>
+          </div>
           <p className="text-xs text-gray-500 mt-6">
             &copy; {new Date().getFullYear()} • Wedding Website
           </p>
@@ -203,4 +217,4 @@ const Reception = () => {
   );
 };
 
-export default Reception;
+export default Home;

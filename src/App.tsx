@@ -1,8 +1,8 @@
 import { Suspense, lazy } from "react";
 import { useRoutes, Routes, Route } from "react-router-dom";
-import Home from "@/components/home";
-import Reception from "@/components/reception";
-import Ceremony from "@/components/ceremony";
+import Home from "@/pages/Home";
+import Reception from "@/pages/Reception";
+import Ceremony from "@/pages/Ceremony";
 
 function App() {
   return (
