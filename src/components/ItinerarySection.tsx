@@ -204,10 +204,31 @@ const defaultCeremonyEvents: EventProps[] = [
   },
   {
     time: "16:30",
-    title: "New Event",
-    location: "Location Name",
-    venue: "Venue Address",
-    description: "Description of the new event.",
+    title: "Confetti Toss",
+    location: "Registry Office Gardens",
+    venue: "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
+    description: "Join us for a celebratory confetti toss as we exit the ceremony.",
+  },
+  {
+    time: "17:00",
+    title: "Champagne Reception",
+    location: "Registry Office Terrace",
+    venue: "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
+    description: "Enjoy champagne and canapés with the newlyweds before the evening reception.",
+  },
+  {
+    time: "17:30",
+    title: "Guest Book Signing",
+    location: "Reception Foyer",
+    venue: "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
+    description: "Leave your wishes and memories for the happy couple in our guest book.",
+  },
+  {
+    time: "18:00",
+    title: "Departure for Reception Venue",
+    location: "Main Entrance",
+    venue: "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
+    description: "Transportation will be available to take guests to the evening reception venue.",
   },
 ];
 
@@ -219,6 +240,22 @@ const defaultReceptionEvents: EventProps[] = [
     venue: "Riverside Manor, 456 Garden Way",
     description:
       "Dinner will be served in the Grand Ballroom. The evening will include toasts, dinner, cake cutting, and dancing.",
+  },
+  {
+    time: "7:00 PM",
+    title: "First Dance",
+    location: "Grand Ballroom Dance Floor",
+    venue: "Riverside Manor, 456 Garden Way",
+    description:
+      "Join us as the newlyweds take to the dance floor for their first dance as a married couple.",
+  },
+  {
+    time: "8:30 PM",
+    title: "Cake Cutting Ceremony",
+    location: "Grand Ballroom",
+    venue: "Riverside Manor, 456 Garden Way",
+    description:
+      "Watch as the bride and groom cut their wedding cake and enjoy a sweet treat with everyone.",
   },
   {
     time: "10:00 PM",
