@@ -87,7 +87,7 @@ const VenueSection = ({
   return (
     <div>
       <section
-        className="px-4 bg-gray-50 h-[1135px]"
+        className="px-4 bg-gray-50"
         id="venue"
         style={{ paddingTop: "7em", paddingBottom: "7em" }}
       >

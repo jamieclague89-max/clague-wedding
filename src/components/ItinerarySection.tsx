@@ -185,85 +185,89 @@ const ItinerarySection = ({
 
 const defaultCeremonyEvents: EventProps[] = [
   {
-    time: "15:15",
-    title: "Wedding Ceremony",
+    time: "15:00 - 15:15",
+    title: "Guests arrive & to be seated",
     location: "Douglas Registry Office",
     venue:
       "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
     description:
-      "An intimate wedding ceremony with our close family and friends.",
+      "All guests are to arrive and be seated between 15:00 - 15:30.",
+  },
+  {
+    time: "15:30",
+    title: "Ceremony to begin",
+    location: "Douglas Registry Office",
+    venue: "",
+    description:
+      "Our intimate wedding ceremony with our close family and friends.",
   },
   {
     time: "16:00",
     title: "Wedding Photos",
     location: "Douglas Registry Office",
-    venue:
-      "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
+    venue: "",
     description:
       "Following the ceremony, there will be the opportunity for professional photograpghs with the bride and groom and all guests.",
   },
   {
     time: "16:30",
-    title: "Confetti Toss",
-    location: "Registry Office Gardens",
-    venue: "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
-    description: "Join us for a celebratory confetti toss as we exit the ceremony.",
+    title: "Celebratory Drinks",
+    location: "The Prospect",
+    venue: "",
+    description:
+      "Following the ceremony, guests are invited to join the newlyweds for drinks and celebration at The Prospect located just across the road.",
   },
   {
-    time: "17:00",
-    title: "Champagne Reception",
-    location: "Registry Office Terrace",
-    venue: "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
-    description: "Enjoy champagne and canapés with the newlyweds before the evening reception.",
-  },
-  {
-    time: "17:30",
-    title: "Guest Book Signing",
-    location: "Reception Foyer",
-    venue: "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
-    description: "Leave your wishes and memories for the happy couple in our guest book.",
+    time: "17:00 - 18:00",
+    title: "Transport To Looky's",
+    location: "The Prospect",
+    venue: "",
+    description:
+      "Guest transport will depart from The Prospect, providing a direct connection to the evening events at Looky’s.",
   },
   {
     time: "18:00",
-    title: "Departure for Reception Venue",
-    location: "Main Entrance",
-    venue: "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
-    description: "Transportation will be available to take guests to the evening reception venue.",
+    title: "Evening Meal & Celebrations",
+    location: "Looky's Lounge Bar",
+    venue:
+      "Best Western Palace Hotel, Looky's Lounge Bar, Central Promenade, Douglas IM2 4NA",
+    description:
+      "Join us at Looky's for an evening of delicious food, drinks, and fun as we celebrate the happy couple.",
   },
 ];
 
 const defaultReceptionEvents: EventProps[] = [
   {
-    time: "5:00 PM",
-    title: "Reception",
-    location: "Grand Ballroom",
-    venue: "Riverside Manor, 456 Garden Way",
+    time: "15:15",
+    title: "Guest arrival",
+    location: "Villa Marina, Foyer",
+    venue: "Harris Promenade, Douglas, Isle of Man, IM1 2HP",
     description:
-      "Dinner will be served in the Grand Ballroom. The evening will include toasts, dinner, cake cutting, and dancing.",
+      "Guests are invited to arrive at the Villa Marina from 15:15, where welcome drinks will be served in the foyer.",
   },
   {
-    time: "7:00 PM",
-    title: "First Dance",
-    location: "Grand Ballroom Dance Floor",
-    venue: "Riverside Manor, 456 Garden Way",
+    time: "16:00",
+    title: "Guests to be seated",
+    location: "Villa Marina, Colonnade Suite",
+    venue: "",
     description:
-      "Join us as the newlyweds take to the dance floor for their first dance as a married couple.",
+      "Guests will be guided from the foyer into the Colonnade Suite to find their tables and be seated for the arrival of the wedding party.",
   },
   {
-    time: "8:30 PM",
-    title: "Cake Cutting Ceremony",
-    location: "Grand Ballroom",
-    venue: "Riverside Manor, 456 Garden Way",
+    time: "16:30 PM",
+    title: "Reception to begin",
+    location: "Villa Marina, Colonnade Suite",
+    venue: "",
     description:
-      "Watch as the bride and groom cut their wedding cake and enjoy a sweet treat with everyone.",
+      "Welcome the wedding party followed by the opening speeches and the start of the reception.",
   },
   {
-    time: "10:00 PM",
-    title: "After Party",
-    location: "Skyline Lounge",
-    venue: "Riverside Manor, Rooftop Level",
+    time: "21:00 PM",
+    title: "Evening food to be served",
+    location: "Villa Marina, Colonnade Suite",
+    venue: "",
     description:
-      "For those who wish to continue celebrating, we'll be moving to the Skyline Lounge for drinks and dancing until late.",
+      "Evening food will be served to keep everyone energised for the late-night celebrations and dancing.",
   },
 ];
 

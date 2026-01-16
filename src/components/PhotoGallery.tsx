@@ -42,7 +42,7 @@ const PhotoGallery = ({ photos = defaultPhotos }: PhotoGalleryProps) => {
   };
 
   return (
-    <section id="gallery" className="px-4 bg-white h-[953px]" style={{ paddingTop: '7em', paddingBottom: '7em' }}>
+    <section id="gallery" className="px-4 bg-white" style={{ paddingTop: '7em', paddingBottom: '7em' }}>
       <div className="mx-auto max-w-4xl">
         <motion.h2
           className="text-4xl text-center mb-12 font-medium md:text-5xl"

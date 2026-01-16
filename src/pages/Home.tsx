@@ -23,11 +23,15 @@ const Home = () => {
   };
 
   return (
-    <div className="bg-white text-black">
+    <div className="bg-white text-black h-[945px]">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <img src="/images/J-A Wedding Logo.png" alt="J & A Wedding Logo" className="h-[70px] w-auto object-contain" />
+          <img
+            src="/images/J-A Wedding Logo.png"
+            alt="J & A Wedding Logo"
+            className="h-[70px] w-auto object-contain"
+          />
 
           {/* Mobile menu button */}
           <Button
@@ -160,13 +164,12 @@ const Home = () => {
           </div>
         )}
       </nav>
-
       {/* Main content */}
       <main className="pt-16">
         {" "}
         {/* Add padding to account for fixed navbar */}
         {/* Hero Section */}
-        <section id="hero" className="min-h-[calc(100vh-4rem)]">
+        <section id="hero">
           <HeroSection />
         </section>
         {/* Our Story Section */}
@@ -186,23 +189,25 @@ const Home = () => {
         {/* RSVP Section */}
         <RsvpForm />
       </main>
-
       {/* Footer */}
-      <footer className="bg-black text-white" style={{ paddingTop: '7em', paddingBottom: '7em' }}>
+      <footer
+        className="bg-black text-white"
+        style={{ paddingTop: "7em", paddingBottom: "7em" }}
+      >
         <div className="container mx-auto px-4 text-center">
           <p className="font-heading text-2xl mb-4">Jamie & Alexandra</p>
           <p className="text-sm text-gray-400">
             We can't wait to celebrate with you!
           </p>
           <div className="mt-6 flex justify-center gap-6">
-            <a 
-              href="/ceremony" 
+            <a
+              href="/ceremony"
               className="text-sm text-gray-400 hover:text-white transition-colors underline"
             >
               Ceremony
             </a>
-            <a 
-              href="/reception" 
+            <a
+              href="/reception"
               className="text-sm text-gray-400 hover:text-white transition-colors underline"
             >
               Reception

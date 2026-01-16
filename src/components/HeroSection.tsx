@@ -15,7 +15,7 @@ const HeroSection = ({
   backgroundImage = "https://images.unsplash.com/photo-1519741497674-611481863552?w=1200&q=80",
 }: HeroSectionProps) => {
   return (
-    <section className="relative min-h-screen w-full flex items-center justify-center bg-black text-white overflow-hidden">
+    <section className="relative w-full flex items-center justify-center bg-black text-white overflow-hidden py-[7.5rem]">
       {/* Background Image with Black and White Filter */}
       <div
         className="absolute inset-0 z-0"
@@ -26,7 +26,6 @@ const HeroSection = ({
           filter: "grayscale(100%) brightness(0.5)",
         }}
       />
-
       {/* Content Container */}
       <motion.div
         className="relative z-10 text-center px-4 max-w-3xl"

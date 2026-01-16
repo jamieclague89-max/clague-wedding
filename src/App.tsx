@@ -9,7 +9,7 @@ function App() {
     <Suspense fallback={<p>Loading...</p>}>
       <>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home className="h-[17691px]" />} />
           <Route path="/reception" element={<Reception />} />
           <Route path="/ceremony" element={<Ceremony />} />
           {import.meta.env.VITE_TEMPO === "true" && (
