@@ -16,7 +16,7 @@ export const GiftingSection = ({
     <section
       className="px-4 bg-gray-50 h-fit"
       id="gifting"
-      style={{ paddingTop: '7em', paddingBottom: '7em' }}
+      style={{ paddingTop: "7em", paddingBottom: "7em" }}
     >
       <div className="max-w-4xl mx-auto">
         <motion.div
@@ -66,24 +66,16 @@ export const GiftingSection = ({
                 <div className="p-8 flex flex-col justify-center">
                   <h3 className="text-3xl font-medium mb-4">Honeymoon Fund</h3>
                   <p className="text-gray-600 leading-relaxed mb-6">
-                    As we begin our new life together, we would be incredibly
-                    grateful for contributions towards our honeymoon adventure.
-                    Your generosity will help us create unforgettable memories
-                    as we celebrate our love.
+                    As we start this new chapter together, we would be truly
+                    grateful for any contribution towards our honeymoon. Your
+                    kindness will help us create new memories as we celebrate
+                    our marriage together.
                   </p>
                   <p className="text-gray-600 leading-relaxed mb-8">
-                    If you wish to contribute, please click the button below to
-                    visit our honeymoon fund page. Every contribution, no matter
-                    the size, is deeply appreciated.
+                    If you wish to contribute, please contact us for further
+                    details. Every contribution, no matter the size, is deeply
+                    appreciated.
                   </p>
-                  <Button
-                    size="lg"
-                    className="w-full md:w-auto"
-                    onClick={() => window.open(honeymoonFundUrl, "_blank")}
-                  >
-                    <Gift className="mr-2 h-5 w-5" />
-                    Contribute to Our Honeymoon
-                  </Button>
                 </div>
               </div>
             </CardContent>

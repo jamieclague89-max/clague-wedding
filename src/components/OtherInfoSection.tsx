@@ -16,68 +16,30 @@ interface InfoItem {
   content: string;
 }
 
-interface FaqItem {
-  question: string;
-  answer: string;
-}
-
-const faqItems: FaqItem[] = [
-  {
-    question: "What time should I arrive?",
-    answer:
-      "We recommend arriving at least 15-20 minutes before the ceremony start time to allow for parking and finding your seat.",
-  },
-  {
-    question: "Is there parking available at the venue?",
-    answer:
-      "Yes, there is ample parking available at both the ceremony and reception venues. Parking is complimentary for all guests.",
-  },
-  {
-    question: "Will there be transportation between venues?",
-    answer:
-      "Yes, we will provide shuttle transportation between the ceremony and reception venues for all guests who need it.",
-  },
-  {
-    question: "Can I bring a plus one?",
-    answer:
-      "Due to limited capacity, we can only accommodate those guests named on the invitation. Please refer to your invitation for details.",
-  },
-  {
-    question: "What if I have dietary restrictions?",
-    answer:
-      "Please let us know about any dietary restrictions when you RSVP. We will do our best to accommodate all dietary needs.",
-  },
-  {
-    question: "Is the venue wheelchair accessible?",
-    answer:
-      "Yes, both the ceremony and reception venues are fully wheelchair accessible. Please contact us if you have any specific accessibility needs.",
-  },
-];
-
 const infoItems: InfoItem[] = [
   {
-    title: "Attire",
-    icon: <Shirt className="h-6 w-6" />,
+    title: "Invite Only",
+    icon: <UserCheck className="h-6 w-6" />,
     content:
-      "We kindly request formal attire for our wedding. Ladies, please wear cocktail dresses or formal gowns. Gentlemen, suits or tuxedos are preferred. The ceremony will be outdoors, so please plan accordingly.",
+      "Our wedding is a invite-only celebration. Due to limited room capacity, we kindly request that only those named on the invitation attend. We apprciate your understanding and can't wait to celebrate together.",
   },
   {
     title: "Photos",
     icon: <Camera className="h-6 w-6" />,
     content:
-      "Our professional photographer will be with us for both days. We ask that you please keep cameras tucked away for the ceremony. When it comes to our reception day, please feel free to take as many photos as you like and share them with us using #theclaguewedding.",
-  },
-  {
-    title: "Invite Only",
-    icon: <UserCheck className="h-6 w-6" />,
-    content:
-      "Thursday’s ceremony is a small, intimate gathering for close family and friends, while Saturday is the big party where we look forward to welcoming more of our friends and partners! Your digital invitation will confirm which days we’d love for you to attend.",
+      "We'll have a professional photographer with us on both days. For the ceremony, we kindly request that cameras stay tucked away so everyone can be fully present. At the reception, please feel free to snap away and share your photos with us after the event.",
   },
   {
     title: "Children",
     icon: <Baby className="h-6 w-6" />,
     content:
       "While we love your little ones, we have decided to make our wedding an adults-only celebration. We hope this gives you the opportunity to relax and enjoy the evening. Thank you for understanding.",
+  },
+  {
+    title: "Attire",
+    icon: <Shirt className="h-6 w-6" />,
+    content:
+      "We'd love everyone to dress in smart attire - polished enough for photos, comfy enough to dance.",
   },
 ];
 
@@ -129,30 +91,6 @@ export const OtherInfoSection = ({ className = "" }: OtherInfoSectionProps) => {
             </CardContent>
           </Card>
         ))}
-      </motion.div>
-      {/* FAQ Section */}
-      <motion.div
-        className="mt-16 mx-auto max-w-4xl"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.4 }}
-      >
-        <h3 className="text-3xl font-medium text-center mb-8">
-          Frequently Asked Questions
-        </h3>
-        <Accordion type="single" collapsible className="w-full">
-          {faqItems.map((faq, index) => (
-            <AccordionItem key={index} value={`item-${index}`}>
-              <AccordionTrigger className="text-left text-lg">
-                {faq.question}
-              </AccordionTrigger>
-              <AccordionContent className="text-gray-600">
-                {faq.answer}
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
       </motion.div>
     </div>
   );
