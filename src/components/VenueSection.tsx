@@ -195,7 +195,7 @@ const defaultCeremonyVenue: VenueInfo = {
   date: "Thursday 2nd April 2026",
   time: "15:00 - 15:15",
   description:
-    "Please join us for an intimate wedding ceremony with our close family and friends...",
+    "Please join us for an intimate wedding ceremony with our close family and friends.",
 };
 
 const defaultReceptionVenue: VenueInfo = {

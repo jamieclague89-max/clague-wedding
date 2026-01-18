@@ -21,13 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 
@@ -201,25 +195,21 @@ Additional Message: ${data.message || 'None'}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Number of Guests Invited</FormLabel>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          setGuestsInvited(parseInt(value));
-                        }}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select number of guests invited" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="1">1</SelectItem>
-                          <SelectItem value="2">2</SelectItem>
-                          <SelectItem value="3">3</SelectItem>
-                          <SelectItem value="4">4</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <FormControl>
+                        <NativeSelect
+                          placeholder="Select number of guests invited"
+                          value={field.value}
+                          onChange={(e) => {
+                            field.onChange(e.target.value);
+                            setGuestsInvited(parseInt(e.target.value));
+                          }}
+                        >
+                          <NativeSelectOption value="1">1</NativeSelectOption>
+                          <NativeSelectOption value="2">2</NativeSelectOption>
+                          <NativeSelectOption value="3">3</NativeSelectOption>
+                          <NativeSelectOption value="4">4</NativeSelectOption>
+                        </NativeSelect>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -246,20 +236,16 @@ Additional Message: ${data.message || 'None'}
                       render={({ field }) => (
                         <FormItem className="w-1/2">
                           <FormLabel>Attending</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <NativeSelect
+                              placeholder="Select status"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            >
+                              <NativeSelectOption value="yes">Yes</NativeSelectOption>
+                              <NativeSelectOption value="no">No</NativeSelectOption>
+                            </NativeSelect>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -288,20 +274,16 @@ Additional Message: ${data.message || 'None'}
                       render={({ field }) => (
                         <FormItem className="w-1/2">
                           <FormLabel>Attending</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <NativeSelect
+                              placeholder="Select status"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            >
+                              <NativeSelectOption value="yes">Yes</NativeSelectOption>
+                              <NativeSelectOption value="no">No</NativeSelectOption>
+                            </NativeSelect>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -330,20 +312,16 @@ Additional Message: ${data.message || 'None'}
                       render={({ field }) => (
                         <FormItem className="w-1/2">
                           <FormLabel>Attending</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <NativeSelect
+                              placeholder="Select status"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            >
+                              <NativeSelectOption value="yes">Yes</NativeSelectOption>
+                              <NativeSelectOption value="no">No</NativeSelectOption>
+                            </NativeSelect>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -372,20 +350,16 @@ Additional Message: ${data.message || 'None'}
                       render={({ field }) => (
                         <FormItem className="w-1/2">
                           <FormLabel>Attending</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                          >
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select status" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="yes">Yes</SelectItem>
-                              <SelectItem value="no">No</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <FormControl>
+                            <NativeSelect
+                              placeholder="Select status"
+                              value={field.value}
+                              onChange={(e) => field.onChange(e.target.value)}
+                            >
+                              <NativeSelectOption value="yes">Yes</NativeSelectOption>
+                              <NativeSelectOption value="no">No</NativeSelectOption>
+                            </NativeSelect>
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
