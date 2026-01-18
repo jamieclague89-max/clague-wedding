@@ -21,7 +21,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 
@@ -30,9 +33,15 @@ import { motion } from "framer-motion";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
-  guestsInvited: z.string().min(1, { message: "Please select number of guests invited." }),
-  guest1Name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  guest1Attending: z.string().min(1, { message: "Please select attendance status." }),
+  guestsInvited: z
+    .string()
+    .min(1, { message: "Please select number of guests invited." }),
+  guest1Name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters." }),
+  guest1Attending: z
+    .string()
+    .min(1, { message: "Please select attendance status." }),
   guest2Name: z.string().optional(),
   guest2Attending: z.string().optional(),
   guest3Name: z.string().optional(),
@@ -74,16 +83,24 @@ const RsvpForm = () => {
       // Prepare email content
       const guestList = [];
       if (data.guest1Name) {
-        guestList.push(`Guest 1: ${data.guest1Name} - ${data.guest1Attending === 'yes' ? 'Attending' : 'Not Attending'}`);
+        guestList.push(
+          `Guest 1: ${data.guest1Name} - ${data.guest1Attending === "yes" ? "Attending" : "Not Attending"}`,
+        );
       }
       if (data.guest2Name && parseInt(data.guestsInvited) >= 2) {
-        guestList.push(`Guest 2: ${data.guest2Name} - ${data.guest2Attending === 'yes' ? 'Attending' : 'Not Attending'}`);
+        guestList.push(
+          `Guest 2: ${data.guest2Name} - ${data.guest2Attending === "yes" ? "Attending" : "Not Attending"}`,
+        );
       }
       if (data.guest3Name && parseInt(data.guestsInvited) >= 3) {
-        guestList.push(`Guest 3: ${data.guest3Name} - ${data.guest3Attending === 'yes' ? 'Attending' : 'Not Attending'}`);
+        guestList.push(
+          `Guest 3: ${data.guest3Name} - ${data.guest3Attending === "yes" ? "Attending" : "Not Attending"}`,
+        );
       }
       if (data.guest4Name && parseInt(data.guestsInvited) >= 4) {
-        guestList.push(`Guest 4: ${data.guest4Name} - ${data.guest4Attending === 'yes' ? 'Attending' : 'Not Attending'}`);
+        guestList.push(
+          `Guest 4: ${data.guest4Name} - ${data.guest4Attending === "yes" ? "Attending" : "Not Attending"}`,
+        );
       }
 
       const emailContent = `
@@ -92,44 +109,46 @@ Wedding RSVP Submission
 Number of Guests Invited: ${data.guestsInvited}
 
 Guest Details:
-${guestList.join('\n')}
+${guestList.join("\n")}
 
 Contact Email: ${data.email}
 
-Dietary Requirements: ${data.dietaryRequirements || 'None'}
+Dietary Requirements: ${data.dietaryRequirements || "None"}
 
-Song Requests: ${data.songRequests || 'None'}
+Song Requests: ${data.songRequests || "None"}
 
-Additional Message: ${data.message || 'None'}
+Additional Message: ${data.message || "None"}
       `.trim();
 
       // Send email using Web3Forms
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          access_key: import.meta.env.VITE_RSVPAPIKey || '',
-          subject: 'New Wedding RSVP Submission',
+          access_key: import.meta.env.VITE_RSVPAPIKey || "",
+          subject: "New Wedding RSVP Submission",
           from_name: data.guest1Name,
           email: data.email,
-          to_email: 'theclaguewedding@outlook.com',
+          to_email: "theclaguewedding@outlook.com",
           message: emailContent,
         }),
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         console.log("Form submitted successfully:", data);
         setIsSubmitted(true);
       } else {
-        throw new Error('Failed to send email');
+        throw new Error("Failed to send email");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("There was an error submitting your RSVP. Please try again or contact us directly.");
+      alert(
+        "There was an error submitting your RSVP. Please try again or contact us directly.",
+      );
     }
   };
 
@@ -148,7 +167,8 @@ Additional Message: ${data.message || 'None'}
           <CardContent className="flex flex-col items-center justify-center py-8">
             <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
             <p className="text-center text-gray-600">
-              Thank you for submitting your RSVP. We're excited to celebrate with you!
+              Thank you for submitting your RSVP. We're excited to celebrate
+              with you!
             </p>
           </CardContent>
         </Card>
@@ -171,7 +191,7 @@ Additional Message: ${data.message || 'None'}
       >
         <h2 className="text-4xl font-heading text-center mb-2">RSVP</h2>
         <p className="text-center text-gray-600 mb-8">
-          Please respond by 23rd February 2026
+          Please respond by 22nd February 2026
         </p>
         <Card>
           <CardHeader>
@@ -242,8 +262,12 @@ Additional Message: ${data.message || 'None'}
                               value={field.value}
                               onChange={(e) => field.onChange(e.target.value)}
                             >
-                              <NativeSelectOption value="yes">Yes</NativeSelectOption>
-                              <NativeSelectOption value="no">No</NativeSelectOption>
+                              <NativeSelectOption value="yes">
+                                Yes
+                              </NativeSelectOption>
+                              <NativeSelectOption value="no">
+                                No
+                              </NativeSelectOption>
                             </NativeSelect>
                           </FormControl>
                           <FormMessage />
@@ -280,8 +304,12 @@ Additional Message: ${data.message || 'None'}
                               value={field.value}
                               onChange={(e) => field.onChange(e.target.value)}
                             >
-                              <NativeSelectOption value="yes">Yes</NativeSelectOption>
-                              <NativeSelectOption value="no">No</NativeSelectOption>
+                              <NativeSelectOption value="yes">
+                                Yes
+                              </NativeSelectOption>
+                              <NativeSelectOption value="no">
+                                No
+                              </NativeSelectOption>
                             </NativeSelect>
                           </FormControl>
                           <FormMessage />
@@ -318,8 +346,12 @@ Additional Message: ${data.message || 'None'}
                               value={field.value}
                               onChange={(e) => field.onChange(e.target.value)}
                             >
-                              <NativeSelectOption value="yes">Yes</NativeSelectOption>
-                              <NativeSelectOption value="no">No</NativeSelectOption>
+                              <NativeSelectOption value="yes">
+                                Yes
+                              </NativeSelectOption>
+                              <NativeSelectOption value="no">
+                                No
+                              </NativeSelectOption>
                             </NativeSelect>
                           </FormControl>
                           <FormMessage />
@@ -356,8 +388,12 @@ Additional Message: ${data.message || 'None'}
                               value={field.value}
                               onChange={(e) => field.onChange(e.target.value)}
                             >
-                              <NativeSelectOption value="yes">Yes</NativeSelectOption>
-                              <NativeSelectOption value="no">No</NativeSelectOption>
+                              <NativeSelectOption value="yes">
+                                Yes
+                              </NativeSelectOption>
+                              <NativeSelectOption value="no">
+                                No
+                              </NativeSelectOption>
                             </NativeSelect>
                           </FormControl>
                           <FormMessage />

@@ -165,7 +165,7 @@ const Home = () => {
         )}
       </nav>
       {/* Main content */}
-      <main className="pt-16 h-[13389px]">
+      <main className="pt-16">
         {" "}
         {/* Add padding to account for fixed navbar */}
         {/* Hero Section */}
