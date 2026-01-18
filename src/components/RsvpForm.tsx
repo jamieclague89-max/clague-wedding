@@ -154,8 +154,7 @@ Additional Message: ${data.message || 'None'}
           <CardContent className="flex flex-col items-center justify-center py-8">
             <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
             <p className="text-center text-gray-600">
-              We're excited to celebrate with you! You'll receive a confirmation
-              email shortly.
+              Thank you for submitting your RSVP. We're excited to celebrate with you!
             </p>
           </CardContent>
         </Card>

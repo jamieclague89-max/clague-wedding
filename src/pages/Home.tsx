@@ -165,7 +165,7 @@ const Home = () => {
         )}
       </nav>
       {/* Main content */}
-      <main className="pt-16">
+      <main className="pt-16 h-[13389px]">
         {" "}
         {/* Add padding to account for fixed navbar */}
         {/* Hero Section */}
@@ -187,7 +187,7 @@ const Home = () => {
         {/* Photo Gallery Section */}
         <PhotoGallery />
         {/* RSVP Section */}
-        <RsvpForm />
+        <RsvpForm className="h-[863px]" />
       </main>
       {/* Footer */}
       <footer
