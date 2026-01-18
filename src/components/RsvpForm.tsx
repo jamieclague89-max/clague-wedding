@@ -116,7 +116,7 @@ Additional Message: ${data.message || 'None'}
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          access_key: import.meta.env.VITE_RSVPAPIKey,
+          access_key: import.meta.env.VITE_RSVPAPIKey || '',
           subject: 'New Wedding RSVP Submission',
           from_name: data.guest1Name,
           email: data.email,
