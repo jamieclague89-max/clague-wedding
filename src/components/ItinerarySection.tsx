@@ -81,8 +81,7 @@ const ItinerarySection = ({
         >
           <h2 className="mb-3 font-medium text-5xl">Wedding Itinerary</h2>
           <p className="text-gray-600 max-w-lg mx-auto">
-            Join us for a day of celebration. Here's what to expect on our
-            special day.
+            Here's what to expect on our special days:
           </p>
           <Separator className="mt-6 max-w-[100px] mx-auto bg-gray-300" />
         </motion.div>
@@ -186,23 +185,23 @@ const ItinerarySection = ({
 const defaultCeremonyEvents: EventProps[] = [
   {
     time: "15:00 - 15:15",
-    title: "Guests arrive & to be seated",
+    title: "Guests Arrive",
     location: "Douglas Registry Office",
     venue:
       "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
     description:
-      "All guests are to arrive and be seated between 15:00 - 15:30.",
+      "All guests are to arrive and be seated between 15:00 - 15:15.",
   },
   {
     time: "15:30",
-    title: "Ceremony to begin",
+    title: "Ceremony To Begin",
     location: "Douglas Registry Office",
     venue: "",
     description:
-      "Our intimate wedding ceremony with our close family and friends.",
+      "Our intimate wedding ceremony will commence with our close family and friends.",
   },
   {
-    time: "16:00",
+    time: "16:00 - 16:30",
     title: "Wedding Photos",
     location: "Douglas Registry Office",
     venue: "",
@@ -213,61 +212,84 @@ const defaultCeremonyEvents: EventProps[] = [
     time: "16:30",
     title: "Celebratory Drinks",
     location: "The Prospect",
-    venue: "",
+    venue: "Prospect Hill, Douglas",
     description:
-      "Following the ceremony, guests are invited to join the newlyweds for drinks and celebration at The Prospect located just across the road.",
+      "Following the ceremony, guests are invited to join the newlyweds for celebratory drinks at The Prospect.",
   },
   {
     time: "17:00 - 18:00",
-    title: "Transport To Looky's",
+    title: "Transport To Looky's Lounge Bar",
     location: "The Prospect",
     venue: "",
     description:
-      "Guest transport will depart from The Prospect, providing a direct connection to the evening events at Looky’s.",
+      "Transport will depart from The Prospect, providing a direct connection to the evening celebrations at Looky’s Lounge Bar.",
   },
   {
     time: "18:00",
-    title: "Evening Meal & Celebrations",
+    title: "Evening Meal",
     location: "Looky's Lounge Bar",
     venue:
       "Best Western Palace Hotel, Looky's Lounge Bar, Central Promenade, Douglas IM2 4NA",
     description:
-      "Join us at Looky's for an evening of delicious food, drinks, and fun as we celebrate the happy couple.",
+      "Join us at Looky's Lounge Bar for an evening of delicious food, drinks, and celebrations.",
   },
 ];
 
 const defaultReceptionEvents: EventProps[] = [
   {
     time: "15:15",
-    title: "Guest arrival",
-    location: "Villa Marina, Foyer",
+    title: "Guest Arrive",
+    location: "The Gallery, Villa Marina",
     venue: "Harris Promenade, Douglas, Isle of Man, IM1 2HP",
     description:
-      "Guests are invited to arrive at the Villa Marina from 15:15, where welcome drinks will be served in the foyer.",
+      "Guests are invited to arrive at the Villa Marina for 15:15, where welcome drinks will be provided in The Gallery.",
   },
   {
     time: "16:00",
-    title: "Guests to be seated",
-    location: "Villa Marina, Colonnade Suite",
+    title: "Guests To Be Seated",
+    location: "Colonnade Suite, Villa Marina",
     venue: "",
     description:
-      "Guests will be guided from the foyer into the Colonnade Suite to find their tables and be seated for the arrival of the wedding party.",
+      "Guests will be invited to take their seats in the Colonnade Suite for the arrival of the wedding party.",
   },
   {
-    time: "16:30 PM",
-    title: "Reception to begin",
-    location: "Villa Marina, Colonnade Suite",
+    time: "16:15",
+    title: "Reception To Begin",
+    location: "Colonnade Suite, Villa Marina",
     venue: "",
     description:
-      "Welcome the wedding party followed by the opening speeches and the start of the reception.",
+      "The wedding party will arrive, followed by the opening speeches.",
   },
   {
-    time: "21:00 PM",
-    title: "Evening food to be served",
-    location: "Villa Marina, Colonnade Suite",
+    time: "17:30",
+    title: "Food To Be Served",
+    location: "Colonnade Suite, Villa Marina",
     venue: "",
     description:
-      "Evening food will be served to keep everyone energised for the late-night celebrations and dancing.",
+      "A hot buffet with a generous selection of dishes will be available for everyone to enjoy.",
+  },
+  {
+    time: "18:30 - 21:00",
+    title: "Entertainment",
+    location: "Colonnade Suite, Villa Marina",
+    venue: "",
+    description: "Entertainment will be provided to celebrate the newlyweds.",
+  },
+  {
+    time: "21:00 - 21:30",
+    title: "Evening Food To Be Served",
+    location: "Colonnade Suite, Villa Marina",
+    venue: "",
+    description:
+      "A selection of hot food will be provided for all guests to enjoy.",
+  },
+  {
+    time: "21:30 - 00:30",
+    title: "Entertainment",
+    location: "Colonnade Suite, Villa Marina",
+    venue: "",
+    description:
+      "Entertainment will again be provided before bringing the evening to a close at 00:30.",
   },
 ];
 

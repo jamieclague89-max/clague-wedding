@@ -30,7 +30,7 @@ interface WeddingPartySectionProps {
 const defaultBridesmaids: PartyMember[] = [
   {
     name: "Alexandra Hilton",
-    image: "/images/Alexandra Hilton.png?v=2",
+    image: "/images/Alexandra Hilton.png",
     tagline: "Most likely to be late for her own wedding",
     role: "Bride",
   },
@@ -47,17 +47,17 @@ const defaultBridesmaids: PartyMember[] = [
     role: "Maid of Honour",
   },
   {
-    name: "Laura Holiday",
+    name: "Laura Holliday",
     image: "/images/Laura Holiday.png?v=2",
-    tagline: "Most likely to keep everyone in order",
+    tagline: "Most likely to be in bed by 9pm",
   },
   {
     name: "Lauren Woods",
     image: "/images/Lauren Burns.png",
-    tagline: "Most likely to have hugged everyone at the wedding by 9PM",
+    tagline: "Most likely to have hugged everyone at the wedding by 6pm",
   },
   {
-    name: "Carlene Hallsall",
+    name: "Carlene Halsall",
     image: "/images/Carlene Halsall.png",
     tagline:
       "Most likely to have an emergency stash of snacks, tissues and plasters in her bag",
@@ -80,10 +80,10 @@ const defaultBridesmaids: PartyMember[] = [
   {
     name: "Ellie Callow",
     image: "/images/Ellie Callow.png",
-    tagline: "Most likely to be the first to locate the wedding cake",
+    tagline: "Most likely to be the first person to locate the wedding cake",
   },
   {
-    name: "Alexis Callow",
+    name: "Elexis Callow",
     image: "/images/Lexi Callow.png",
     tagline: "Most likely to steal your prosecco when your back is turned",
   },
@@ -99,7 +99,7 @@ const defaultGroomsmen: PartyMember[] = [
   {
     name: "William Penhallurick",
     image: "/images/William Penhallurick.png",
-    tagline: "Most likely to get the shots and keep the party going",
+    tagline: "Most likely to get the shots and get the party started",
     role: "Best Man",
   },
   {
@@ -110,22 +110,23 @@ const defaultGroomsmen: PartyMember[] = [
   {
     name: "Oliver Bennett",
     image: "/images/Oliver Bennett.png?v=2",
-    tagline: "Most likely to have dice for any drinking games",
+    tagline: "Most likely to have dice for the drinking games",
   },
   {
     name: "Darren Shields",
     image: "/images/Darren Shields.png?v=2",
-    tagline: "Most likely to be found on the drums",
+    tagline: "Most likely to be using the cutlery as drumsticks",
   },
   {
     name: "Daniel Pennington",
     image: "/images/Daniel Pennington.png",
-    tagline: "Most likely to be having a kick about",
+    tagline: "Most likely to bring the ball for a kick about",
   },
   {
     name: "Lee Shields",
     image: "/images/Lee Shields.png?v=2",
-    tagline: "Most likely to arrive early and keep everything running smoothly",
+    tagline:
+      "Most likely to deliver a pre-match team talk to get everyone fired up.",
   },
 ];
 

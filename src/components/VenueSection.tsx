@@ -101,9 +101,9 @@ const VenueSection = ({
           >
             <h2 className="font-heading mb-3 text-5xl">Wedding Information</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Join us at these beautiful locations for our special day. Below
-              you'll find all the details you need to know about our ceremony
-              and reception venues.
+              Join us at these beautiful locations for our special days. Below
+              you'll find all the details about our ceremony and reception
+              venues.
             </p>
             <Separator className="mt-6 max-w-[100px] mx-auto bg-gray-300" />
           </motion.div>
@@ -178,10 +178,7 @@ const VenueSection = ({
                 Important Information
               </h3>
               <p className="text-gray-600 text-lg">
-                Please arrive at the wedding ceremony at 15:15, for a 15:30
-                prompt start.
-                <br /> Transportation will be provided between venues for all
-                guests.
+                Transportation will be provided between venues for all guests.
               </p>
             </div>
           </motion.div>
@@ -196,7 +193,7 @@ const defaultCeremonyVenue: VenueInfo = {
   address:
     "Registries Building, Deemsters Walk, Bucks Road, Douglas, Isle of Man, IM1 3AR",
   date: "Thursday 2nd April 2026",
-  time: "15:15",
+  time: "15:00 - 15:15",
   description:
     "Please join us for an intimate wedding ceremony with our close family and friends.",
 };
@@ -205,9 +202,9 @@ const defaultReceptionVenue: VenueInfo = {
   name: "Villa Marina, Colonnade Suite",
   address: "Harris Promenade, Douglas, Isle of Man, IM1 2HP",
   date: "Saturday 4th April 2026",
-  time: "15:30",
+  time: "15:15",
   description:
-    "We would love for you to join us, along with all our family and friends, for an afternoon and evening of celebration.",
+    "We would love for you to join us, along with all our family and friends, for an afternoon and evening of celebrations.",
 };
 
 const defaultLookysBarVenue: VenueInfo = {
@@ -217,7 +214,7 @@ const defaultLookysBarVenue: VenueInfo = {
   date: "Thursday 2nd April 2026",
   time: "18:00",
   description:
-    "After the ceremony please join us for an evening of celebration with food and drinks at Looky's Lounge Bar.",
+    "After the ceremony join us for an evening of celebrations with food and drinks at Looky's Lounge Bar.",
 };
 
 export default VenueSection;

@@ -65,13 +65,13 @@ const infoItems: InfoItem[] = [
     title: "Photos",
     icon: <Camera className="h-6 w-6" />,
     content:
-      "We have hired a professional photographer to capture our special day. We kindly ask that you enjoy the moment unplugged during the ceremony. Feel free to take photos during the reception and share them with us using #OurWeddingDay.",
+      "Our professional photographer will be with us for both days. We ask that you please keep cameras tucked away for the ceremony. When it comes to our reception day, please feel free to take as many photos as you like and share them with us using #theclaguewedding.",
   },
   {
     title: "Invite Only",
     icon: <UserCheck className="h-6 w-6" />,
     content:
-      "Our wedding is an intimate celebration with limited capacity. We have reserved seats specifically for those named on your invitation. We appreciate your understanding and look forward to celebrating with you.",
+      "Thursday’s ceremony is a small, intimate gathering for close family and friends, while Saturday is the big party where we look forward to welcoming more of our friends and partners! Your digital invitation will confirm which days we’d love for you to attend.",
   },
   {
     title: "Children",
@@ -87,7 +87,11 @@ interface OtherInfoSectionProps {
 
 export const OtherInfoSection = ({ className = "" }: OtherInfoSectionProps) => {
   return (
-    <div id="other-info" className={`bg-white h-fit ${className}`} style={{ paddingTop: '7em', paddingBottom: '7em' }}>
+    <div
+      id="other-info"
+      className={`bg-white h-fit ${className}`}
+      style={{ paddingTop: "7em", paddingBottom: "7em" }}
+    >
       <motion.div
         className="text-center mb-12 max-w-4xl mx-auto"
         initial={{ opacity: 0, y: 20 }}
@@ -97,7 +101,7 @@ export const OtherInfoSection = ({ className = "" }: OtherInfoSectionProps) => {
       >
         <h2 className="font-heading mb-3 text-5xl">Other Info</h2>
         <p className="text-gray-600 max-w-lg mx-auto">
-          A few important details to help you prepare for our special day.
+          A few important details to help you prepare for our special days.
         </p>
         <Separator className="mt-6 max-w-[100px] mx-auto bg-gray-300" />
       </motion.div>
