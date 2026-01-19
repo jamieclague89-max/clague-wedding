@@ -30,7 +30,7 @@ interface WeddingPartySectionProps {
 const defaultBridesmaids: PartyMember[] = [
   {
     name: "Alexandra Hilton",
-    image: "/images/Alexandra Hilton.png",
+    image: "/images/alexhilton.png",
     tagline: "Most likely to be late for her own wedding",
     role: "Bride",
   },
@@ -64,7 +64,7 @@ const defaultBridesmaids: PartyMember[] = [
   },
   {
     name: "Emma Fulton",
-    image: "/images/Emma Fulton.png",
+    image: "/images/emmafulton1.png",
     tagline: "Most likely to be taking a selfie",
   },
   {
