@@ -30,61 +30,61 @@ interface WeddingPartySectionProps {
 const defaultBridesmaids: PartyMember[] = [
   {
     name: "Alexandra Hilton",
-    image: "/images/alexhilton.png",
+    image: "/images/alexhiltonfinal.png",
     tagline: "Most likely to be late for her own wedding",
     role: "Bride",
   },
   {
     name: "Emma Tracey",
-    image: "/images/Emma Tracey.png",
+    image: "/images/emmatraceyfinal.png",
     tagline: "Most likely to be the first on the dancefloor",
     role: "Maid of Honour",
   },
   {
     name: "Sarah Boyd",
-    image: "/images/Sarah Boyd.png",
+    image: "/images/sarahboydfinal.png",
     tagline: "Most likely to have a glass of wine in hand",
     role: "Maid of Honour",
   },
   {
     name: "Laura Holliday",
-    image: "/images/Laura Holiday.png?v=2",
+    image: "/images/lauraholidayfinal.png",
     tagline: "Most likely to be in bed by 9pm",
   },
   {
     name: "Lauren Woods",
-    image: "/images/Lauren Burns.png",
+    image: "/images/laurenburnsfinal.png",
     tagline: "Most likely to have hugged everyone at the wedding by 6pm",
   },
   {
     name: "Carlene Halsall",
-    image: "/images/Carlene Halsall.png",
+    image: "/images/carlenehalsallfinal.png",
     tagline:
       "Most likely to have an emergency stash of snacks, tissues and plasters in her bag",
   },
   {
     name: "Emma Fulton",
-    image: "/images/emmafulton1.png",
+    image: "/images/emmafultonfinal.png",
     tagline: "Most likely to be taking a selfie",
   },
   {
     name: "Emma Callow",
-    image: "/images/Emma Callow.png",
+    image: "/images/emmacallowfinal.png",
     tagline: "Most likely to be taking a nap",
   },
   {
     name: "Jasmine Johnstone",
-    image: "/images/Jasmine Johnstone.png",
+    image: "/images/jasminejohnstonefinal.png",
     tagline: "Most likely to be the first person to find the prosecco",
   },
   {
     name: "Ellie Callow",
-    image: "/images/Ellie Callow.png",
+    image: "/images/elliecallowfinal.png",
     tagline: "Most likely to be the first person to locate the wedding cake",
   },
   {
     name: "Elexis Callow",
-    image: "/images/Lexi Callow.png",
+    image: "/images/lexicallowfinal.png",
     tagline: "Most likely to steal your prosecco when your back is turned",
   },
 ];
@@ -92,39 +92,39 @@ const defaultBridesmaids: PartyMember[] = [
 const defaultGroomsmen: PartyMember[] = [
   {
     name: "Jamie Clague",
-    image: "/images/Jamie Clague.png?v=2",
+    image: "/images/jamieclaguefinal.png",
     tagline: "Most likely to forget the date of his wedding",
     role: "Groom",
   },
   {
     name: "William Penhallurick",
-    image: "/images/William Penhallurick.png",
+    image: "/images/williampenhallurickfinal.png",
     tagline: "Most likely to get the shots and get the party started",
     role: "Best Man",
   },
   {
     name: "Stephen Lovelady-Wakenshaw",
-    image: "/images/Stephen Lovelady Wakenshaw.png",
+    image: "/images/stephenloveladywakenshawfinal.png",
     tagline: "Most likely to start singing a football chant",
   },
   {
     name: "Oliver Bennett",
-    image: "/images/Oliver Bennett.png?v=2",
+    image: "/images/oliverbennettfinal.png",
     tagline: "Most likely to have dice for the drinking games",
   },
   {
     name: "Darren Shields",
-    image: "/images/Darren Shields.png?v=2",
+    image: "/images/darrenshieldsfinal.png",
     tagline: "Most likely to be using the cutlery as drumsticks",
   },
   {
     name: "Daniel Pennington",
-    image: "/images/Daniel Pennington.png",
+    image: "/images/danielpenningtonfinal.png",
     tagline: "Most likely to bring the ball for a kick about",
   },
   {
     name: "Lee Shields",
-    image: "/images/Lee Shields.png?v=2",
+    image: "/images/leeshieldsfinal.png",
     tagline:
       "Most likely to deliver a pre-match team talk to get everyone fired up.",
   },

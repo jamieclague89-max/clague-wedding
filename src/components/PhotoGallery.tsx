@@ -42,7 +42,11 @@ const PhotoGallery = ({ photos = defaultPhotos }: PhotoGalleryProps) => {
   };
 
   return (
-    <section id="gallery" className="px-4 bg-white" style={{ paddingTop: '7em', paddingBottom: '7em' }}>
+    <section
+      id="gallery"
+      className="px-4 bg-white"
+      style={{ paddingTop: "7em", paddingBottom: "7em" }}
+    >
       <div className="mx-auto max-w-4xl">
         <motion.h2
           className="text-4xl text-center mb-12 font-medium md:text-5xl"
@@ -124,22 +128,22 @@ const PhotoGallery = ({ photos = defaultPhotos }: PhotoGalleryProps) => {
 const defaultPhotos: Photo[] = [
   {
     id: 1,
-    src: "https://images.unsplash.com/photo-1529634806980-85c3dd6d34ac?w=800&q=80",
-    alt: "Couple walking on beach",
+    src: "/images/alexringbox.jpg",
+    alt: "Alex's engagement ring in the box",
     width: 800,
     height: 600,
   },
   {
     id: 2,
-    src: "https://images.unsplash.com/photo-1606800052052-a08af7148866?w=800&q=80",
-    alt: "Couple holding hands",
+    src: "/images/alexringhand.jpg",
+    alt: "Alex's engagement ring on her hand",
     width: 800,
     height: 600,
   },
   {
     id: 3,
-    src: "https://images.unsplash.com/photo-1583939003579-730e3918a45a?w=800&q=80",
-    alt: "Couple at sunset",
+    src: "/images/jamiealex1.jpg",
+    alt: "Jamie & Alex",
     width: 800,
     height: 600,
   },
