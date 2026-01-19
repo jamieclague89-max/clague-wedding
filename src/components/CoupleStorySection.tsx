@@ -17,7 +17,7 @@ const CoupleStorySection = ({
   proposalText = "After nearly eight years together, Jamie proposed on Christmas Day 2024. Surrounded by the glow of our Christmas tree with April by our side, in our very own home that we built together. It was a quiet, heartfelt moment that was perfectly us.",
 }: CoupleStorySectionProps) => {
   return (
-    <section id="our-story" className="py-20 bg-white pt-7">
+    <section id="our-story" className="bg-white pt-[120px] pb-[120px]">
       <div className="container mx-auto px-4 max-w-4xl">
         {/* Welcome Text */}
         <motion.p
@@ -50,7 +50,7 @@ const CoupleStorySection = ({
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className=" mb-[0px] pb-[0px] pt-[83px]"
+          className="pt-[83px]"
         >
           <h3 className="text-center mb-6 text-5xl">{proposalTitle}</h3>
           <p className="text-gray-700 leading-relaxed text-lg text-center">

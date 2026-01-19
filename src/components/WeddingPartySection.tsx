@@ -48,12 +48,12 @@ const defaultBridesmaids: PartyMember[] = [
   },
   {
     name: "Laura Holliday",
-    image: "/images/lauraholidayfinal.png",
+    image: "/images/laurahollidayfinal.png",
     tagline: "Most likely to be in bed by 9pm",
   },
   {
     name: "Lauren Woods",
-    image: "/images/laurenburnsfinal.png",
+    image: "/images/laurenwoodsfinal.png",
     tagline: "Most likely to have hugged everyone at the wedding by 6pm",
   },
   {

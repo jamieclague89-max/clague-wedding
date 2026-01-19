@@ -175,8 +175,8 @@ const Reception = () => {
         <VenueSection showOnlyReception={true} />
         {/* Itinerary Section - Reception Tab Only */}
         <ItinerarySection showOnlyReception={true} />
-        {/* Wedding Party Section - Groomsmen Tab Only */}
-        <WeddingPartySection showOnlyGroomsmen={true} />
+        {/* Wedding Party Section */}
+        <WeddingPartySection defaultTab="bridesmaids" />
         {/* Other Info Section */}
         <OtherInfoSection />
         {/* Gifting Section */}
