@@ -166,7 +166,7 @@ const Reception = () => {
         {" "}
         {/* Add padding to account for fixed navbar */}
         {/* Hero Section */}
-        <section id="hero" className="min-h-[calc(100vh-4rem)]">
+        <section id="hero">
           <HeroSection />
         </section>
         {/* Our Story Section */}
