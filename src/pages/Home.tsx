@@ -204,22 +204,13 @@ const Home = () => {
           <p className="text-sm text-gray-400">
             We can't wait to celebrate with you!
           </p>
-          <div className="mt-6 flex justify-center gap-6">
-            <a
-              href="/ceremony"
-              className="text-sm text-gray-400 hover:text-white transition-colors underline"
-            >
-              Ceremony
-            </a>
-            <a
-              href="/reception"
-              className="text-sm text-gray-400 hover:text-white transition-colors underline"
-            >
-              Reception
-            </a>
-          </div>
           <p className="text-xs text-gray-500 mt-6">
-            &copy; {new Date().getFullYear()} • Wedding Website
+            &copy; {new Date().getFullYear()} • Jamie & Alexandra's Wedding
+            Website{" "}
+          </p>
+          <p className="text-xs text-gray-500 mt-6">
+            {" "}
+            Website designed and built by Jamie Clague
           </p>
         </div>
       </footer>
