@@ -62,6 +62,7 @@ interface RsvpFormProps {
 
 const RsvpForm = ({ showOnlyCeremony, showOnlyReception }: RsvpFormProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [guestsInvited, setGuestsInvited] = useState<number>(1);
 
   const form = useForm<FormValues>({
@@ -84,6 +85,7 @@ const RsvpForm = ({ showOnlyCeremony, showOnlyReception }: RsvpFormProps) => {
   });
 
   const onSubmit = async (data: FormValues) => {
+    setIsSubmitting(true);
     try {
       // Prepare email content
       const guestList = [];
@@ -154,6 +156,8 @@ Additional Message: ${data.message || "None"}
       alert(
         "There was an error submitting your RSVP. Please try again or contact us directly.",
       );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -482,8 +486,8 @@ Additional Message: ${data.message || "None"}
                 />
 
                 <CardFooter className="px-0 pt-4">
-                  <Button type="submit" className="w-full">
-                    Submit RSVP
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Submitting..." : "Submit RSVP"}
                   </Button>
                 </CardFooter>
               </form>

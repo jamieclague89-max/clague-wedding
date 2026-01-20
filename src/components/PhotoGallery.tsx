@@ -74,6 +74,7 @@ const PhotoGallery = ({ photos = defaultPhotos }: PhotoGalleryProps) => {
               <img
                 src={photo.src}
                 alt={photo.alt}
+                loading="lazy"
                 className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-300"
               />
             </div>

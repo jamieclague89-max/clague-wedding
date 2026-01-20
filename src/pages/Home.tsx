@@ -8,11 +8,16 @@ import VenueSection from "@/components/VenueSection";
 import WeddingPartySection from "@/components/WeddingPartySection";
 import OtherInfoSection from "@/components/OtherInfoSection";
 import GiftingSection from "@/components/GiftingSection";
+import BackToTop from "@/components/BackToTop";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 
 const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+  React.useEffect(() => {
+    document.title = "Jamie & Alex | Our Wedding";
+  }, []);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
@@ -218,6 +223,7 @@ const Home = () => {
           </p>
         </div>
       </footer>
+      <BackToTop />
     </div>
   );
 };
