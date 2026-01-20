@@ -45,9 +45,11 @@ const infoItems: InfoItem[] = [
 
 interface OtherInfoSectionProps {
   className?: string;
+  showOnlyCeremony?: boolean;
+  showOnlyReception?: boolean;
 }
 
-export const OtherInfoSection = ({ className = "" }: OtherInfoSectionProps) => {
+export const OtherInfoSection = ({ className = "", showOnlyCeremony, showOnlyReception }: OtherInfoSectionProps) => {
   return (
     <div
       id="other-info"
@@ -63,7 +65,9 @@ export const OtherInfoSection = ({ className = "" }: OtherInfoSectionProps) => {
       >
         <h2 className="font-heading mb-3 text-5xl">Other Info</h2>
         <p className="text-gray-600 max-w-lg mx-auto">
-          A few important details to help you prepare for our special days.
+          {(showOnlyCeremony || showOnlyReception)
+            ? "A few important details to help you prepare for our special day."
+            : "A few important details to help you prepare for our special days."}
         </p>
         <Separator className="mt-6 max-w-[100px] mx-auto bg-gray-300" />
       </motion.div>

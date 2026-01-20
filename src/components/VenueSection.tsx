@@ -101,9 +101,11 @@ const VenueSection = ({
           >
             <h2 className="font-heading mb-3 text-5xl">Wedding Information</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Join us at these beautiful locations for our special days. Below
-              you'll find all the details about our ceremony and reception
-              venues.
+              {showOnlyCeremony 
+                ? "Join us at these beautiful locations for our special day. Below you'll find all the details about our ceremony venues."
+                : showOnlyReception
+                ? "Join us at this beautiful location for our special day. Below you'll find all the details about our reception venue."
+                : "Join us at these beautiful locations for our special days. Below you'll find all the details about our ceremony and reception venues."}
             </p>
             <Separator className="mt-6 max-w-[100px] mx-auto bg-gray-300" />
           </motion.div>

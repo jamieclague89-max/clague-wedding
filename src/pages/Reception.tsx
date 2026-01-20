@@ -178,13 +178,13 @@ const Reception = () => {
         {/* Wedding Party Section */}
         <WeddingPartySection defaultTab="bridesmaids" />
         {/* Other Info Section */}
-        <OtherInfoSection />
+        <OtherInfoSection showOnlyReception={true} />
         {/* Gifting Section */}
         <GiftingSection />
         {/* Photo Gallery Section */}
         <PhotoGallery />
         {/* RSVP Section */}
-        <RsvpForm />
+        <RsvpForm showOnlyReception={true} />
       </main>
 
       {/* Footer */}

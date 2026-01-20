@@ -179,13 +179,13 @@ const Ceremony = () => {
         {/* Wedding Party Section - Bridesmaids Only */}
         <WeddingPartySection showOnlyBridesmaids={true} />
         {/* Other Info Section */}
-        <OtherInfoSection />
+        <OtherInfoSection showOnlyCeremony={true} />
         {/* Gifting Section */}
         <GiftingSection />
         {/* Photo Gallery Section */}
         <PhotoGallery />
         {/* RSVP Section */}
-        <RsvpForm />
+        <RsvpForm showOnlyCeremony={true} />
       </main>
 
       {/* Footer */}

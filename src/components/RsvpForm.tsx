@@ -55,7 +55,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const RsvpForm = () => {
+interface RsvpFormProps {
+  showOnlyCeremony?: boolean;
+  showOnlyReception?: boolean;
+}
+
+const RsvpForm = ({ showOnlyCeremony, showOnlyReception }: RsvpFormProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [guestsInvited, setGuestsInvited] = useState<number>(1);
 
@@ -199,8 +204,9 @@ Additional Message: ${data.message || "None"}
               Will you be joining us?
             </CardTitle>
             <CardDescription>
-              Fill out the form below to let us know if you can make it to our
-              special days.
+              {(showOnlyCeremony || showOnlyReception)
+                ? "Fill out the form below to let us know if you can make it to our special day."
+                : "Fill out the form below to let us know if you can make it to our special days."}
             </CardDescription>
           </CardHeader>
           <CardContent>

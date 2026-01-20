@@ -81,7 +81,9 @@ const ItinerarySection = ({
         >
           <h2 className="mb-3 font-medium text-5xl">Wedding Itinerary</h2>
           <p className="text-gray-600 max-w-lg mx-auto">
-            Here's what to expect on our special days:
+            {(showOnlyCeremony || showOnlyReception)
+              ? "Here's what to expect on our special day:"
+              : "Here's what to expect on our special days:"}
           </p>
           <Separator className="mt-6 max-w-[100px] mx-auto bg-gray-300" />
         </motion.div>

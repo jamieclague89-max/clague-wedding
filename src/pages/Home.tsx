@@ -173,7 +173,7 @@ const Home = () => {
           <HeroSection />
         </section>
         {/* Our Story Section */}
-        <CoupleStorySection />
+        <CoupleStorySection welcomeText="Welcome to our wedding website! We're so excited to share these special days with you. Here's a little bit about our journey together." />
         {/* Venue Section */}
         <VenueSection />
         {/* Itinerary Section */}
