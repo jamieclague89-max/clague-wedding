@@ -174,6 +174,7 @@ const WeddingPartySection = ({
   const [groomsmenApi, setGroomsmenApi] = useState<CarouselApi>();
   const [bridesmaidsCenter, setBridesmaidsCenter] = useState(0);
   const [groomsmenCenter, setGroomsmenCenter] = useState(0);
+  const [activeTab, setActiveTab] = useState(defaultTab);
 
   useEffect(() => {
     if (!bridesmaidsApi) return;
@@ -184,10 +185,12 @@ const WeddingPartySection = ({
     };
 
     bridesmaidsApi.on("select", updateCenter);
+    bridesmaidsApi.on("reInit", updateCenter);
     updateCenter();
 
     return () => {
       bridesmaidsApi.off("select", updateCenter);
+      bridesmaidsApi.off("reInit", updateCenter);
     };
   }, [bridesmaidsApi]);
 
@@ -200,12 +203,23 @@ const WeddingPartySection = ({
     };
 
     groomsmenApi.on("select", updateCenter);
+    groomsmenApi.on("reInit", updateCenter);
     updateCenter();
 
     return () => {
       groomsmenApi.off("select", updateCenter);
+      groomsmenApi.off("reInit", updateCenter);
     };
   }, [groomsmenApi]);
+
+  // Reset carousel position when switching tabs
+  useEffect(() => {
+    if (activeTab === "bridesmaids" && bridesmaidsApi) {
+      bridesmaidsApi.scrollTo(0);
+    } else if (activeTab === "groomsmen" && groomsmenApi) {
+      groomsmenApi.scrollTo(0);
+    }
+  }, [activeTab, bridesmaidsApi, groomsmenApi]);
 
   return (
     <section
@@ -265,38 +279,45 @@ const WeddingPartySection = ({
               </Carousel>
             </div>
           ) : showOnlyBridesmaids ? (
-            <div className="pt-[50px]">
-              <Carousel
-                setApi={setBridesmaidsApi}
-                opts={{
-                  align: "center",
-                  loop: true,
-                }}
-                className="w-full max-w-5xl mx-auto"
-              >
-                <CarouselContent>
-                  {bridesmaids.map((member, index) => (
-                    <CarouselItem
-                      key={index}
-                      className="md:basis-1/2 lg:basis-1/3"
-                    >
-                      <div className="p-1">
-                        <PartyMemberCard
-                          member={member}
-                          isCenter={index === bridesmaidsCenter}
-                          role="Bridesmaid"
-                          className=""
-                        />
-                      </div>
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            </div>
+            <Tabs defaultValue="bridesmaids" className="w-full pt-[50px]">
+              <TabsList className="grid w-full grid-cols-1 mb-8 max-w-md mx-auto">
+                <TabsTrigger value="bridesmaids">Bridesmaids</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="bridesmaids">
+                <Carousel
+                  setApi={setBridesmaidsApi}
+                  key="bridesmaids-carousel"
+                  opts={{
+                    align: "center",
+                    loop: true,
+                  }}
+                  className="w-full max-w-5xl mx-auto"
+                >
+                  <CarouselContent>
+                    {bridesmaids.map((member, index) => (
+                      <CarouselItem
+                        key={index}
+                        className="md:basis-1/2 lg:basis-1/3"
+                      >
+                        <div className="p-1">
+                          <PartyMemberCard
+                            member={member}
+                            isCenter={index === bridesmaidsCenter}
+                            role="Bridesmaid"
+                            className=""
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <CarouselPrevious />
+                  <CarouselNext />
+                </Carousel>
+              </TabsContent>
+            </Tabs>
           ) : (
-            <Tabs defaultValue={defaultTab} className="w-full pt-[50px]">
+            <Tabs defaultValue={defaultTab} className="w-full pt-[50px]" onValueChange={(value) => setActiveTab(value as "bridesmaids" | "groomsmen")}>
               <TabsList className="grid w-full grid-cols-2 mb-8 max-w-md mx-auto">
                 <TabsTrigger value="bridesmaids">Bridesmaids</TabsTrigger>
                 <TabsTrigger value="groomsmen">Groomsmen</TabsTrigger>
@@ -305,6 +326,7 @@ const WeddingPartySection = ({
               <TabsContent value="bridesmaids">
                 <Carousel
                   setApi={setBridesmaidsApi}
+                  key="bridesmaids-full"
                   opts={{
                     align: "center",
                     loop: true,
@@ -336,6 +358,7 @@ const WeddingPartySection = ({
               <TabsContent value="groomsmen">
                 <Carousel
                   setApi={setGroomsmenApi}
+                  key="groomsmen-full"
                   opts={{
                     align: "center",
                     loop: true,

@@ -181,8 +181,8 @@ const Ceremony = () => {
         <VenueSection showOnlyCeremony={true} />
         {/* Itinerary Section - Ceremony Only */}
         <ItinerarySection showOnlyCeremony={true} />
-        {/* Wedding Party Section - Bridesmaids Only */}
-        <WeddingPartySection showOnlyBridesmaids={true} />
+        {/* Wedding Party Section */}
+        <WeddingPartySection />
         {/* Other Info Section */}
         <OtherInfoSection showOnlyCeremony={true} />
         {/* Gifting Section */}
@@ -190,7 +190,7 @@ const Ceremony = () => {
         {/* Photo Gallery Section */}
         <PhotoGallery />
         {/* RSVP Section */}
-        <RsvpForm showOnlyCeremony={true} />
+        <RsvpForm showOnlyCeremony={true} pageName="Ceremony" />
       </main>
 
       {/* Footer */}

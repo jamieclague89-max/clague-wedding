@@ -21,7 +21,7 @@ const infoItems: InfoItem[] = [
     title: "Invite Only",
     icon: <UserCheck className="h-6 w-6" />,
     content:
-      "Our wedding is a invite-only celebration. Due to limited room capacity, we kindly request that only those named on the invitation attend. We apprciate your understanding and can't wait to celebrate together.",
+      "Our wedding is an invite-only celebration. Due to limited room capacity, we kindly request that only those named on the invitation attend. We appreciate your understanding and can't wait to celebrate together.",
   },
   {
     title: "Photos",
@@ -49,7 +49,11 @@ interface OtherInfoSectionProps {
   showOnlyReception?: boolean;
 }
 
-export const OtherInfoSection = ({ className = "", showOnlyCeremony, showOnlyReception }: OtherInfoSectionProps) => {
+export const OtherInfoSection = ({
+  className = "",
+  showOnlyCeremony,
+  showOnlyReception,
+}: OtherInfoSectionProps) => {
   return (
     <div
       id="other-info"
@@ -65,7 +69,7 @@ export const OtherInfoSection = ({ className = "", showOnlyCeremony, showOnlyRec
       >
         <h2 className="font-heading mb-3 text-5xl">Other Info</h2>
         <p className="text-gray-600 max-w-lg mx-auto">
-          {(showOnlyCeremony || showOnlyReception)
+          {showOnlyCeremony || showOnlyReception
             ? "A few important details to help you prepare for our special day."
             : "A few important details to help you prepare for our special days."}
         </p>
@@ -88,7 +92,9 @@ export const OtherInfoSection = ({ className = "", showOnlyCeremony, showOnlyRec
                 <div className="flex-1">
                   <h3 className="font-medium mb-2 text-3xl">{item.title}</h3>
                   <p className="text-gray-600 leading-relaxed">
-                    {item.content}
+                    {item.title === "Photos" && showOnlyReception
+                      ? "A professional photographer will be with us in the afternoon and evening; however, guests are welcome to take their own photos and share them with us after the event."
+                      : item.content}
                   </p>
                 </div>
               </div>

@@ -81,7 +81,7 @@ const ItinerarySection = ({
         >
           <h2 className="mb-3 font-medium text-5xl">Wedding Itinerary</h2>
           <p className="text-gray-600 max-w-lg mx-auto">
-            {(showOnlyCeremony || showOnlyReception)
+            {showOnlyCeremony || showOnlyReception
               ? "Here's what to expect on our special day:"
               : "Here's what to expect on our special days:"}
           </p>
@@ -208,7 +208,7 @@ const defaultCeremonyEvents: EventProps[] = [
     location: "Douglas Registry Office",
     venue: "",
     description:
-      "Following the ceremony, there will be the opportunity for professional photograpghs with the bride and groom and all guests.",
+      "Following the ceremony, there will be the opportunity for professional photographs with the bride and groom and all guests.",
   },
   {
     time: "16:30",

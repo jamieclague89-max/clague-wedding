@@ -189,7 +189,7 @@ const Reception = () => {
         {/* Photo Gallery Section */}
         <PhotoGallery />
         {/* RSVP Section */}
-        <RsvpForm showOnlyReception={true} />
+        <RsvpForm showOnlyReception={true} pageName="Reception" />
       </main>
 
       {/* Footer */}

@@ -58,9 +58,10 @@ type FormValues = z.infer<typeof formSchema>;
 interface RsvpFormProps {
   showOnlyCeremony?: boolean;
   showOnlyReception?: boolean;
+  pageName?: string;
 }
 
-const RsvpForm = ({ showOnlyCeremony, showOnlyReception }: RsvpFormProps) => {
+const RsvpForm = ({ showOnlyCeremony, showOnlyReception, pageName = "Home" }: RsvpFormProps) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [guestsInvited, setGuestsInvited] = useState<number>(1);
@@ -112,6 +113,8 @@ const RsvpForm = ({ showOnlyCeremony, showOnlyReception }: RsvpFormProps) => {
 
       const emailContent = `
 Wedding RSVP Submission
+
+Page: ${pageName}
 
 Number of Guests Invited: ${data.guestsInvited}
 

@@ -192,7 +192,7 @@ const Home = () => {
         {/* Photo Gallery Section */}
         <PhotoGallery />
         {/* RSVP Section */}
-        <RsvpForm className="h-[863px]" />
+        <RsvpForm className="h-[863px]" pageName="Home" />
       </main>
       {/* Footer */}
       <footer
