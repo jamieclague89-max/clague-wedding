@@ -201,7 +201,12 @@ const Ceremony = () => {
             We can't wait to celebrate with you!
           </p>
           <p className="text-xs text-gray-500 mt-6">
-            &copy; {new Date().getFullYear()} • Wedding Website
+            &copy; {new Date().getFullYear()} • Jamie & Alexandra's Wedding
+            Website{" "}
+          </p>
+          <p className="text-xs text-gray-500 mt-6">
+            {" "}
+            Website designed and built by Jamie Clague
           </p>
         </div>
       </footer>
