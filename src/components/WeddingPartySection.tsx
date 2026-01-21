@@ -114,7 +114,7 @@ const defaultGroomsmen: PartyMember[] = [
   },
   {
     name: "Darren Shields",
-    image: "/images/darrenshieldsfinal.png",
+    image: "/images/darrenshieldsfinal2.png",
     tagline: "Most likely to be using the cutlery as drumsticks",
   },
   {
@@ -317,7 +317,13 @@ const WeddingPartySection = ({
               </TabsContent>
             </Tabs>
           ) : (
-            <Tabs defaultValue={defaultTab} className="w-full pt-[50px]" onValueChange={(value) => setActiveTab(value as "bridesmaids" | "groomsmen")}>
+            <Tabs
+              defaultValue={defaultTab}
+              className="w-full pt-[50px]"
+              onValueChange={(value) =>
+                setActiveTab(value as "bridesmaids" | "groomsmen")
+              }
+            >
               <TabsList className="grid w-full grid-cols-2 mb-8 max-w-md mx-auto">
                 <TabsTrigger value="bridesmaids">Bridesmaids</TabsTrigger>
                 <TabsTrigger value="groomsmen">Groomsmen</TabsTrigger>
