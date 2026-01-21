@@ -240,7 +240,7 @@ const defaultCeremonyEvents: EventProps[] = [
 const defaultReceptionEvents: EventProps[] = [
   {
     time: "15:15",
-    title: "Guest Arrive",
+    title: "Guests Arrive",
     location: "The Gallery, Villa Marina",
     venue: "Harris Promenade, Douglas, Isle of Man, IM1 2HP",
     description:
