@@ -47,12 +47,6 @@ const Reception = () => {
           {/* Desktop menu */}
           <div className="hidden md:flex space-x-8">
             <button
-              onClick={() => scrollToSection("hero")}
-              className="text-sm hover:text-gray-600 transition-colors"
-            >
-              Home
-            </button>
-            <button
               onClick={() => scrollToSection("our-story")}
               className="text-sm hover:text-gray-600 transition-colors"
             >
@@ -107,12 +101,6 @@ const Reception = () => {
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-gray-100 py-4">
             <div className="container mx-auto px-4 flex flex-col space-y-4">
-              <button
-                onClick={() => scrollToSection("hero")}
-                className="text-sm py-2 hover:text-gray-600 transition-colors text-left"
-              >
-                Home
-              </button>
               <button
                 onClick={() => scrollToSection("our-story")}
                 className="text-sm py-2 hover:text-gray-600 transition-colors text-left"
