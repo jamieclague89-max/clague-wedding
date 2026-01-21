@@ -170,7 +170,7 @@ const Ceremony = () => {
         {/* Itinerary Section - Ceremony Only */}
         <ItinerarySection showOnlyCeremony={true} />
         {/* Wedding Party Section */}
-        <WeddingPartySection />
+        <WeddingPartySection defaultTab="bridesmaids" />
         {/* Other Info Section */}
         <OtherInfoSection showOnlyCeremony={true} />
         {/* Gifting Section */}
