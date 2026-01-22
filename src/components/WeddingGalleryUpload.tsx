@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, Check, AlertCircle, Image, Video, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
 
 interface UploadedFile {
   id: string;
@@ -47,11 +47,23 @@ const WeddingGalleryUpload = () => {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
   
-  // Initialize Supabase client
-  const supabase = createClient(
-    import.meta.env.VITE_SUPABASE_URL || "",
-    import.meta.env.VITE_SUPABASE_ANON_KEY || ""
-  );
+  // Initialize Supabase client with memoization to prevent recreation
+  const supabase = useMemo<SupabaseClient | null>(() => {
+    const url = import.meta.env.VITE_SUPABASE_URL;
+    const key = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    if (!url || !key) {
+      console.error("Supabase credentials missing - URL:", !!url, "Key:", !!key);
+      return null;
+    }
+    
+    try {
+      return createClient(url, key);
+    } catch (error) {
+      console.error("Failed to create Supabase client:", error);
+      return null;
+    }
+  }, []);
 
   // Debug env variables on mount
   useEffect(() => {
@@ -60,10 +72,17 @@ const WeddingGalleryUpload = () => {
     console.log("VITE_SUPABASE_ANON_KEY:", import.meta.env.VITE_SUPABASE_ANON_KEY ? "✓ Set" : "✗ Missing");
     console.log("VITE_CLOUDINARY_CLOUD_NAME:", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME ? "✓ Set" : "✗ Missing");
     console.log("VITE_CLOUDINARY_UPLOAD_PRESET:", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET ? "✓ Set" : "✗ Missing");
-  }, []);
+    console.log("Supabase client initialized:", !!supabase);
+  }, [supabase]);
 
   // Fetch existing images from Supabase on mount
   useEffect(() => {
+    if (!supabase) {
+      setGalleryError("Database connection not available. Please check configuration.");
+      setIsLoadingGallery(false);
+      return;
+    }
+    
     fetchGalleryFiles();
     
     // Subscribe to realtime changes
@@ -82,21 +101,17 @@ const WeddingGalleryUpload = () => {
     return () => {
       channel.unsubscribe();
     };
-  }, []);
+  }, [supabase]);
 
   const fetchGalleryFiles = async () => {
+    if (!supabase) {
+      setGalleryError("Database connection not available. Please check configuration.");
+      setIsLoadingGallery(false);
+      return;
+    }
+    
     setIsLoadingGallery(true);
     try {
-      // Debug: log connection info
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      if (!supabaseUrl || !supabaseKey) {
-        throw new Error("Supabase credentials are missing. Please check environment variables.");
-      }
-      
-      console.log("Supabase URL:", supabaseUrl ? "✓" : "✗");
-      console.log("Supabase Key:", supabaseKey ? "✓" : "✗");
       console.log("Attempting to fetch gallery files...");
 
       const { data, error } = await supabase
@@ -209,7 +224,7 @@ const WeddingGalleryUpload = () => {
       setUploadErrors(errors);
     }
 
-    if (newFiles.length > 0) {
+    if (newFiles.length > 0 && supabase) {
       // Save to Supabase
       const filesToInsert = newFiles.map((file) => ({
         url: file.url,
@@ -236,10 +251,18 @@ const WeddingGalleryUpload = () => {
         // Refresh gallery to show new files
         await fetchGalleryFiles();
       }
+    } else if (newFiles.length > 0 && !supabase) {
+      setUploadErrors([
+        ...uploadErrors,
+        {
+          file: "Gallery",
+          message: "Files uploaded to cloud but database is not available.",
+        },
+      ]);
     }
 
     setIsUploading(false);
-  }, [cloudName, uploadPreset]);
+  }, [cloudName, uploadPreset, supabase]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
