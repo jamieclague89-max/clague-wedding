@@ -251,7 +251,7 @@ const WeddingGalleryUpload = () => {
                     <Upload className="h-6 w-6 text-gray-700" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-2">Upload Guidelines</h3>
+                    <h3 className="text-lg mb-2">Upload Guidelines</h3>
                     <ul className="text-gray-600 space-y-1 text-sm">
                       <li className="flex items-center gap-2">
                         <Image className="h-4 w-4" />
