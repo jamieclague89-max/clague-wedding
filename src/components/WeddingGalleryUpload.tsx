@@ -39,6 +39,7 @@ const WeddingGalleryUpload = () => {
   const [uploadErrors, setUploadErrors] = useState<UploadError[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [isLoadingGallery, setIsLoadingGallery] = useState(true);
+  const [galleryError, setGalleryError] = useState<string | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,6 +52,15 @@ const WeddingGalleryUpload = () => {
     import.meta.env.VITE_SUPABASE_URL || "",
     import.meta.env.VITE_SUPABASE_ANON_KEY || ""
   );
+
+  // Debug env variables on mount
+  useEffect(() => {
+    console.log("Environment Variables Check:");
+    console.log("VITE_SUPABASE_URL:", import.meta.env.VITE_SUPABASE_URL ? "✓ Set" : "✗ Missing");
+    console.log("VITE_SUPABASE_ANON_KEY:", import.meta.env.VITE_SUPABASE_ANON_KEY ? "✓ Set" : "✗ Missing");
+    console.log("VITE_CLOUDINARY_CLOUD_NAME:", import.meta.env.VITE_CLOUDINARY_CLOUD_NAME ? "✓ Set" : "✗ Missing");
+    console.log("VITE_CLOUDINARY_UPLOAD_PRESET:", import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET ? "✓ Set" : "✗ Missing");
+  }, []);
 
   // Fetch existing images from Supabase on mount
   useEffect(() => {
@@ -77,6 +87,18 @@ const WeddingGalleryUpload = () => {
   const fetchGalleryFiles = async () => {
     setIsLoadingGallery(true);
     try {
+      // Debug: log connection info
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error("Supabase credentials are missing. Please check environment variables.");
+      }
+      
+      console.log("Supabase URL:", supabaseUrl ? "✓" : "✗");
+      console.log("Supabase Key:", supabaseKey ? "✓" : "✗");
+      console.log("Attempting to fetch gallery files...");
+
       const { data, error } = await supabase
         .from("gallery_files")
         .select("*")
@@ -84,8 +106,13 @@ const WeddingGalleryUpload = () => {
 
       if (error) {
         console.error("Error fetching gallery files:", error);
+        console.error("Error code:", error.code);
+        console.error("Error message:", error.message);
+        setGalleryError(`Failed to load gallery: ${error.message}`);
         setFiles([]);
       } else {
+        console.log("Gallery files fetched successfully:", data);
+        setGalleryError(null);
         const formattedFiles: UploadedFile[] = (data || []).map((file: any) => ({
           id: file.id,
           name: file.name,
@@ -97,6 +124,7 @@ const WeddingGalleryUpload = () => {
       }
     } catch (error) {
       console.error("Error fetching gallery files:", error);
+      setGalleryError(error instanceof Error ? error.message : "Unknown error loading gallery");
       setFiles([]);
     } finally {
       setIsLoadingGallery(false);
@@ -446,6 +474,23 @@ const WeddingGalleryUpload = () => {
           <div className="container mx-auto max-w-4xl text-center">
             <Loader2 className="h-12 w-12 text-gray-400 animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Loading gallery...</p>
+          </div>
+        </section>
+      ) : galleryError ? (
+        <section className="px-4 py-16 bg-white">
+          <div className="container mx-auto max-w-4xl">
+            <Card className="bg-red-50 border-red-200">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="p-3 bg-red-100 rounded-full">
+                  <AlertCircle className="h-6 w-6 text-red-600" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-medium text-red-800">Gallery Error</p>
+                  <p className="text-red-600 text-sm">{galleryError}</p>
+                  <p className="text-red-500 text-xs mt-2">Please refresh the page or contact support if the problem persists.</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </section>
       ) : files.length > 0 ? (
