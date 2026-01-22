@@ -167,23 +167,25 @@ const VenueSection = ({
             )}
           </motion.div>
 
-          <motion.div
-            className="text-center mt-[80px]"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-          >
-            <div className="bg-gray-50 p-6 rounded-lg max-w-3xl mx-auto">
-              <Clock className="h-6 w-6 mx-auto mb-3 text-gray-600" />
-              <h3 className="mb-2 font-medium text-3xl">
-                Important Information
-              </h3>
-              <p className="text-gray-600 text-lg">
-                Transportation will be provided between venues for all guests.
-              </p>
-            </div>
-          </motion.div>
+          {!showOnlyReception && (
+            <motion.div
+              className="text-center mt-[80px]"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <div className="bg-gray-50 p-6 rounded-lg max-w-3xl mx-auto">
+                <Clock className="h-6 w-6 mx-auto mb-3 text-gray-600" />
+                <h3 className="mb-2 font-medium text-3xl">
+                  Important Information
+                </h3>
+                <p className="text-gray-600 text-lg">
+                  Transportation will be provided between venues for all guests.
+                </p>
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
     </div>

@@ -131,18 +131,27 @@ Additional Message: ${data.message || "None"}
       `.trim();
 
       // Send email using Web3Forms
+      const apiKey = import.meta.env.VITE_RSVPAPIKey;
+      
+      if (!apiKey) {
+        console.error("RSVP API Key is not configured");
+        throw new Error("API key not configured");
+      }
+
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          access_key: import.meta.env.VITE_RSVPAPIKey || "",
-          subject: "New Wedding RSVP Submission",
+          access_key: apiKey,
+          subject: `Wedding RSVP - ${data.guest1Name}`,
           from_name: data.guest1Name,
           email: data.email,
-          to_email: "theclaguewedding@outlook.com",
           message: emailContent,
+          // Anti-spam measures
+          botcheck: "",
+          replyto: data.email,
         }),
       });
 
@@ -152,7 +161,8 @@ Additional Message: ${data.message || "None"}
         console.log("Form submitted successfully:", data);
         setIsSubmitted(true);
       } else {
-        throw new Error("Failed to send email");
+        console.error("Web3Forms error:", result);
+        throw new Error(result.message || "Failed to send email");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
