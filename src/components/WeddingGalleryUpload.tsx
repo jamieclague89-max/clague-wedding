@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Check, AlertCircle, Image, Video, Loader2 } from "lucide-react";
+import { Upload, X, Check, AlertCircle, Image, Video, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { createClient } from "@supabase/supabase-js";
 
 interface UploadedFile {
   id: string;
@@ -38,59 +39,64 @@ const WeddingGalleryUpload = () => {
   const [uploadErrors, setUploadErrors] = useState<UploadError[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [isLoadingGallery, setIsLoadingGallery] = useState(true);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+  
+  // Initialize Supabase client
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL || "",
+    import.meta.env.VITE_SUPABASE_ANON_KEY || ""
+  );
 
-  // Fetch existing images from Cloudinary on mount
+  // Fetch existing images from Supabase on mount
   useEffect(() => {
-    fetchCloudinaryImages();
+    fetchGalleryFiles();
+    
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel("gallery_files_changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "gallery_files" },
+        (payload) => {
+          // Refresh gallery when changes occur
+          fetchGalleryFiles();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
   }, []);
 
-  const fetchCloudinaryImages = async () => {
+  const fetchGalleryFiles = async () => {
     setIsLoadingGallery(true);
     try {
-      // Fetch images by tag using the public list endpoint
-      const imageResponse = await fetch(
-        `https://res.cloudinary.com/${cloudName}/image/list/wedding-gallery.json`
-      );
-      
-      let allFiles: UploadedFile[] = [];
-      
-      if (imageResponse.ok) {
-        const imageData = await imageResponse.json();
-        const images: UploadedFile[] = imageData.resources.map((resource: any) => ({
-          id: resource.public_id,
-          name: resource.public_id.split('/').pop() || 'Untitled',
-          type: 'image' as const,
-          url: `https://res.cloudinary.com/${cloudName}/image/upload/${resource.public_id}.${resource.format}`,
-          uploadedAt: new Date(resource.created_at),
+      const { data, error } = await supabase
+        .from("gallery_files")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching gallery files:", error);
+        setFiles([]);
+      } else {
+        const formattedFiles: UploadedFile[] = (data || []).map((file: any) => ({
+          id: file.id,
+          name: file.name,
+          type: file.type,
+          url: file.url,
+          uploadedAt: new Date(file.uploaded_at),
         }));
-        allFiles = [...allFiles, ...images];
+        setFiles(formattedFiles);
       }
-      
-      // Also fetch videos
-      const videoResponse = await fetch(
-        `https://res.cloudinary.com/${cloudName}/video/list/wedding-gallery.json`
-      );
-      
-      if (videoResponse.ok) {
-        const videoData = await videoResponse.json();
-        const videos: UploadedFile[] = videoData.resources.map((resource: any) => ({
-          id: resource.public_id,
-          name: resource.public_id.split('/').pop() || 'Untitled',
-          type: 'video' as const,
-          url: `https://res.cloudinary.com/${cloudName}/video/upload/${resource.public_id}.${resource.format}`,
-          uploadedAt: new Date(resource.created_at),
-        }));
-        allFiles = [...allFiles, ...videos];
-      }
-      
-      setFiles(allFiles);
     } catch (error) {
-      console.error("Error fetching Cloudinary images:", error);
-      // Don't show errors to user, just start with empty gallery
+      console.error("Error fetching gallery files:", error);
       setFiles([]);
     } finally {
       setIsLoadingGallery(false);
@@ -176,9 +182,32 @@ const WeddingGalleryUpload = () => {
     }
 
     if (newFiles.length > 0) {
-      setFiles((prev) => [...newFiles, ...prev]);
-      setUploadSuccess(true);
-      setTimeout(() => setUploadSuccess(false), 3000);
+      // Save to Supabase
+      const filesToInsert = newFiles.map((file) => ({
+        url: file.url,
+        name: file.name,
+        type: file.type,
+      }));
+
+      const { error: insertError } = await supabase
+        .from("gallery_files")
+        .insert(filesToInsert);
+
+      if (insertError) {
+        console.error("Error saving to gallery:", insertError);
+        setUploadErrors([
+          ...uploadErrors,
+          {
+            file: "Gallery",
+            message: "Files uploaded but failed to save to gallery. Please refresh the page.",
+          },
+        ]);
+      } else {
+        setUploadSuccess(true);
+        setTimeout(() => setUploadSuccess(false), 3000);
+        // Refresh gallery to show new files
+        await fetchGalleryFiles();
+      }
     }
 
     setIsUploading(false);
@@ -218,6 +247,35 @@ const WeddingGalleryUpload = () => {
   const dismissError = (index: number) => {
     setUploadErrors((prev) => prev.filter((_, i) => i !== index));
   };
+
+  const openLightbox = (index: number) => {
+    setCurrentImageIndex(index);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
+
+  const goToPrevious = () => {
+    setCurrentImageIndex((prev) => (prev === 0 ? files.length - 1 : prev - 1));
+  };
+
+  const goToNext = () => {
+    setCurrentImageIndex((prev) => (prev === files.length - 1 ? 0 : prev + 1));
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!lightboxOpen) return;
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") goToPrevious();
+      if (e.key === "ArrowRight") goToNext();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [lightboxOpen, files.length]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -413,7 +471,8 @@ const WeddingGalleryUpload = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group"
+                  className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group cursor-pointer"
+                  onClick={() => openLightbox(index)}
                 >
                   {file.type === "image" ? (
                     <img
@@ -436,9 +495,6 @@ const WeddingGalleryUpload = () => {
                       </div>
                     </div>
                   )}
-                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    <p className="text-white text-xs truncate">{file.name}</p>
-                  </div>
                 </motion.div>
               ))}
             </div>
@@ -465,6 +521,83 @@ const WeddingGalleryUpload = () => {
           </div>
         </section>
       )}
+
+      {/* Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxOpen && files.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+            onClick={closeLightbox}
+          >
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-4 text-white hover:bg-white/10 z-50"
+              onClick={closeLightbox}
+            >
+              <X className="h-6 w-6" />
+            </Button>
+
+            {/* Navigation Buttons */}
+            {files.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 z-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToPrevious();
+                  }}
+                >
+                  <ChevronLeft className="h-8 w-8" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/10 z-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToNext();
+                  }}
+                >
+                  <ChevronRight className="h-8 w-8" />
+                </Button>
+              </>
+            )}
+
+            {/* Counter */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm z-50">
+              {currentImageIndex + 1} / {files.length}
+            </div>
+
+            {/* Image/Video Content */}
+            <div
+              className="max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {files[currentImageIndex].type === "image" ? (
+                <img
+                  src={files[currentImageIndex].url}
+                  alt={files[currentImageIndex].name}
+                  className="max-w-full max-h-full object-contain"
+                />
+              ) : (
+                <video
+                  src={files[currentImageIndex].url}
+                  controls
+                  className="max-w-full max-h-full"
+                  autoPlay
+                />
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
