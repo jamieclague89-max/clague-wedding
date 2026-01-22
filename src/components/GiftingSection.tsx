@@ -90,7 +90,7 @@ export const GiftingSection = ({
           transition={{ duration: 0.6, delay: 0.4 }}
         >
           Your love and support mean the world to us. Thank you for being part
-          of our special day.
+          of our special days.
         </motion.p>
       </div>
     </section>
