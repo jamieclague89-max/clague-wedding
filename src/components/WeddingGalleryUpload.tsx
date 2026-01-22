@@ -51,24 +51,47 @@ const WeddingGalleryUpload = () => {
   const fetchCloudinaryImages = async () => {
     setIsLoadingGallery(true);
     try {
-      // Using the resources API to get all images and videos
-      const response = await fetch(
+      // Fetch images by tag using the public list endpoint
+      const imageResponse = await fetch(
         `https://res.cloudinary.com/${cloudName}/image/list/wedding-gallery.json`
       );
       
-      if (response.ok) {
-        const data = await response.json();
-        const formattedFiles: UploadedFile[] = data.resources.map((resource: any) => ({
+      let allFiles: UploadedFile[] = [];
+      
+      if (imageResponse.ok) {
+        const imageData = await imageResponse.json();
+        const images: UploadedFile[] = imageData.resources.map((resource: any) => ({
           id: resource.public_id,
           name: resource.public_id.split('/').pop() || 'Untitled',
-          type: resource.resource_type === 'video' ? 'video' : 'image',
-          url: resource.secure_url,
+          type: 'image' as const,
+          url: `https://res.cloudinary.com/${cloudName}/image/upload/${resource.public_id}.${resource.format}`,
           uploadedAt: new Date(resource.created_at),
         }));
-        setFiles(formattedFiles);
+        allFiles = [...allFiles, ...images];
       }
+      
+      // Also fetch videos
+      const videoResponse = await fetch(
+        `https://res.cloudinary.com/${cloudName}/video/list/wedding-gallery.json`
+      );
+      
+      if (videoResponse.ok) {
+        const videoData = await videoResponse.json();
+        const videos: UploadedFile[] = videoData.resources.map((resource: any) => ({
+          id: resource.public_id,
+          name: resource.public_id.split('/').pop() || 'Untitled',
+          type: 'video' as const,
+          url: `https://res.cloudinary.com/${cloudName}/video/upload/${resource.public_id}.${resource.format}`,
+          uploadedAt: new Date(resource.created_at),
+        }));
+        allFiles = [...allFiles, ...videos];
+      }
+      
+      setFiles(allFiles);
     } catch (error) {
       console.error("Error fetching Cloudinary images:", error);
+      // Don't show errors to user, just start with empty gallery
+      setFiles([]);
     } finally {
       setIsLoadingGallery(false);
     }
