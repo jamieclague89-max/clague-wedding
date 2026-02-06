@@ -138,23 +138,27 @@ export default function HenPartyQuiz() {
   // Show setup screen if no session
   if (!sessionId) {
     return (
-      <GameSetupScreen
-        onStartNewGame={handleStartNewGame}
-        onJoinGame={handleJoinGameByCode}
-      />
+      <div className="hen-party-quiz">
+        <GameSetupScreen
+          onStartNewGame={handleStartNewGame}
+          onJoinGame={handleJoinGameByCode}
+        />
+      </div>
     );
   }
 
   // Lobby
   if (gameState.status === 'lobby') {
     return (
-      <LobbyScreen
-        players={players}
-        currentPlayer={currentPlayer}
-        gameCode={gameCode}
-        onStartGame={handleStartGame}
-        onLeaveGame={leaveGame}
-      />
+      <div className="hen-party-quiz">
+        <LobbyScreen
+          players={players}
+          currentPlayer={currentPlayer}
+          gameCode={gameCode}
+          onStartGame={handleStartGame}
+          onLeaveGame={leaveGame}
+        />
+      </div>
     );
   }
 
@@ -169,15 +173,17 @@ export default function HenPartyQuiz() {
       'currentQuestion:', currentQuestion);
     
     return (
-      <LeaderboardScreen
-        players={players}
-        isHost={isHost}
-        isFinalRound={isFinalRound}
-        answers={currentAnswers}
-        correctAnswer={correctAnswer}
-        onContinue={handleContinue}
-        onPlayAgain={handlePlayAgain}
-      />
+      <div className="hen-party-quiz">
+        <LeaderboardScreen
+          players={players}
+          isHost={isHost}
+          isFinalRound={isFinalRound}
+          answers={currentAnswers}
+          correctAnswer={correctAnswer}
+          onContinue={handleContinue}
+          onPlayAgain={handlePlayAgain}
+        />
+      </div>
     );
   }
 
@@ -187,21 +193,23 @@ export default function HenPartyQuiz() {
     const currentAnswers = answers.filter(a => a.question_key === questionKey);
 
     return (
-      <GameScreen
-        question={currentQuestion || currentRound.questions[0]}
-        questionNumber={gameState.current_question_index + 1}
-        totalQuestions={currentRound.questions.length}
-        players={players}
-        currentPlayer={currentPlayer}
-        answers={currentAnswers}
-        gameStatus={gameState.status as 'intro' | 'question' | 'reveal'}
-        roundTitle={currentRound.title}
-        roundDescription={currentRound.description}
-        isHost={isHost}
-        onSubmitAnswer={handleSubmitAnswer}
-        onReveal={handleReveal}
-        onContinue={handleContinue}
-      />
+      <div className="hen-party-quiz">
+        <GameScreen
+          question={currentQuestion || currentRound.questions[0]}
+          questionNumber={gameState.current_question_index + 1}
+          totalQuestions={currentRound.questions.length}
+          players={players}
+          currentPlayer={currentPlayer}
+          answers={currentAnswers}
+          gameStatus={gameState.status as 'intro' | 'question' | 'reveal'}
+          roundTitle={currentRound.title}
+          roundDescription={currentRound.description}
+          isHost={isHost}
+          onSubmitAnswer={handleSubmitAnswer}
+          onReveal={handleReveal}
+          onContinue={handleContinue}
+        />
+      </div>
     );
   }
 
