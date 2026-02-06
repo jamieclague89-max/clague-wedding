@@ -19,7 +19,7 @@ module.exports = {
     extend: {
       fontFamily: {
         brand: ["Brand", "cursive"],
-        heading: ["Bacalisties", "sans-serif"], // Add your custom font here
+        heading: ["Courgette", "sans-serif"], // Add your custom font here
         body: ["Source Serif 4", "serif"],
       },
       colors: {

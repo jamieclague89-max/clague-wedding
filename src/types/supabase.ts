@@ -41,12 +41,128 @@ export type Database = {
         }
         Relationships: []
       }
+      game_sessions: {
+        Row: {
+          created_at: string | null
+          current_question_index: number
+          current_round: number
+          game_code: string | null
+          id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_question_index?: number
+          current_round?: number
+          game_code?: string | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_question_index?: number
+          current_round?: number
+          game_code?: string | null
+          id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      quiz_answers: {
+        Row: {
+          answer: string
+          created_at: string | null
+          game_session_id: string
+          id: string
+          player_id: string
+          question_key: string
+          time_remaining: number
+        }
+        Insert: {
+          answer: string
+          created_at?: string | null
+          game_session_id: string
+          id?: string
+          player_id: string
+          question_key: string
+          time_remaining: number
+        }
+        Update: {
+          answer?: string
+          created_at?: string | null
+          game_session_id?: string
+          id?: string
+          player_id?: string
+          question_key?: string
+          time_remaining?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_answers_game_session_id_fkey"
+            columns: ["game_session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "quiz_answers_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_players: {
+        Row: {
+          created_at: string | null
+          game_session_id: string
+          id: string
+          is_host: boolean
+          name: string
+          score: number
+          selfie_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          game_session_id: string
+          id?: string
+          is_host?: boolean
+          name: string
+          score?: number
+          selfie_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          game_session_id?: string
+          id?: string
+          is_host?: boolean
+          name?: string
+          score?: number
+          selfie_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_players_game_session_id_fkey"
+            columns: ["game_session_id"]
+            isOneToOne: false
+            referencedRelation: "game_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_player_score: {
+        Args: { p_player_id: string; p_points: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
