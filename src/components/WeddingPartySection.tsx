@@ -103,11 +103,6 @@ const defaultGroomsmen: PartyMember[] = [
     role: "Best Man",
   },
   {
-    name: "Stephen Lovelady-Wakenshaw",
-    image: "/images/stephenloveladywakenshawfinal.png",
-    tagline: "Most likely to start singing a football chant",
-  },
-  {
     name: "Oliver Bennett",
     image: "/images/oliverbennettfinal.png",
     tagline: "Most likely to have dice for the drinking games",
