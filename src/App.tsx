@@ -14,7 +14,7 @@ function App() {
           <Route path="/" element={<Home className="h-[17691px]" />} />
           <Route path="/reception" element={<Reception />} />
           <Route path="/ceremony" element={<Ceremony />} />
-          <Route path="/wedding-gallery" element={<WeddingGallery />} />
+          <Route path="/gallery" element={<WeddingGallery />} />
           <Route path="/hen-party-quiz" element={<HenPartyQuiz />} />
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" element={null} />
