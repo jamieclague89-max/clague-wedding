@@ -1,10 +1,33 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Check, AlertCircle, Image, Video, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Upload, X, Check, AlertCircle, Image, Video, Loader2, ChevronLeft, ChevronRight, User, MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
+
+type EmojiType = "heart" | "like" | "laugh";
+
+const EMOJI_CONFIG: Record<EmojiType, { emoji: string; label: string }> = {
+  heart: { emoji: "❤️", label: "Love" },
+  like: { emoji: "👍", label: "Like" },
+  laugh: { emoji: "😂", label: "Haha" },
+};
+
+interface ReactionCounts {
+  heart: number;
+  like: number;
+  laugh: number;
+}
+
+interface UserReactions {
+  heart: boolean;
+  like: boolean;
+  laugh: boolean;
+}
 
 interface UploadedFile {
   id: string;
@@ -13,6 +36,7 @@ interface UploadedFile {
   url: string;
   thumbnail?: string;
   uploadedAt: Date;
+  uploadedBy: string;
 }
 
 interface CloudinaryResource {
@@ -26,6 +50,14 @@ interface CloudinaryResource {
 interface UploadError {
   file: string;
   message: string;
+}
+
+interface GalleryComment {
+  id: string;
+  file_id: string;
+  commenter_name: string;
+  message: string;
+  created_at: string;
 }
 
 const MAX_FILE_SIZE = 80 * 1024 * 1024; // 80MB in bytes
@@ -42,6 +74,16 @@ const WeddingGalleryUpload = () => {
   const [galleryError, setGalleryError] = useState<string | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [uploaderName, setUploaderName] = useState(() => localStorage.getItem("weddingGalleryUploaderName") || "");
+  const [nameError, setNameError] = useState(false);
+  const [reactions, setReactions] = useState<Record<string, ReactionCounts>>({});
+  const [userReactions, setUserReactions] = useState<Record<string, UserReactions>>({});
+  const [reactingTo, setReactingTo] = useState<string | null>(null);
+  const [comments, setComments] = useState<Record<string, GalleryComment[]>>({});
+  const [commentPanelOpen, setCommentPanelOpen] = useState(false);
+  const [newCommentName, setNewCommentName] = useState(() => localStorage.getItem("weddingGalleryUploaderName") || "");
+  const [newCommentMessage, setNewCommentMessage] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -75,6 +117,62 @@ const WeddingGalleryUpload = () => {
     console.log("Supabase client initialized:", !!supabase);
   }, [supabase]);
 
+  const fetchReactions = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase
+      .from("gallery_reactions")
+      .select("file_id, emoji, reactor_name");
+    if (error || !data) return;
+
+    const counts: Record<string, ReactionCounts> = {};
+    const userR: Record<string, UserReactions> = {};
+    const name = localStorage.getItem("weddingGalleryUploaderName") || "";
+
+    data.forEach((row: any) => {
+      if (!counts[row.file_id]) counts[row.file_id] = { heart: 0, like: 0, laugh: 0 };
+      if (!userR[row.file_id]) userR[row.file_id] = { heart: false, like: false, laugh: false };
+      counts[row.file_id][row.emoji as EmojiType]++;
+      if (name && row.reactor_name === name) {
+        userR[row.file_id][row.emoji as EmojiType] = true;
+      }
+    });
+
+    setReactions(counts);
+    setUserReactions(userR);
+  }, [supabase]);
+
+  const fetchComments = useCallback(async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase
+      .from("gallery_comments")
+      .select("*")
+      .order("created_at", { ascending: true });
+    if (error || !data) return;
+
+    const grouped: Record<string, GalleryComment[]> = {};
+    data.forEach((row: GalleryComment) => {
+      if (!grouped[row.file_id]) grouped[row.file_id] = [];
+      grouped[row.file_id].push(row);
+    });
+    setComments(grouped);
+  }, [supabase]);
+
+  const handleAddComment = useCallback(async (fileId: string) => {
+    if (!supabase || !newCommentName.trim() || !newCommentMessage.trim()) return;
+    setIsSubmittingComment(true);
+    const name = newCommentName.trim();
+    localStorage.setItem("weddingGalleryUploaderName", name);
+    const { error } = await supabase.from("gallery_comments").insert({
+      file_id: fileId,
+      commenter_name: name,
+      message: newCommentMessage.trim(),
+    });
+    if (!error) {
+      setNewCommentMessage("");
+    }
+    setIsSubmittingComment(false);
+  }, [supabase, newCommentName, newCommentMessage]);
+
   // Fetch existing images from Supabase on mount
   useEffect(() => {
     if (!supabase) {
@@ -84,24 +182,54 @@ const WeddingGalleryUpload = () => {
     }
     
     fetchGalleryFiles();
-    
-    // Subscribe to realtime changes
+    fetchReactions();
+    fetchComments();
+
+    // Subscribe to real-time inserts so the gallery updates automatically
     const channel = supabase
       .channel("gallery_files_changes")
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "gallery_files" },
+        { event: "INSERT", schema: "public", table: "gallery_files" },
         (payload) => {
-          // Refresh gallery when changes occur
-          fetchGalleryFiles();
+          const file = payload.new as any;
+          setFiles((prev) => [
+            {
+              id: file.id,
+              name: file.name,
+              type: file.type,
+              url: file.url,
+              uploadedAt: new Date(file.uploaded_at),
+              uploadedBy: file.uploaded_by || "Anonymous",
+            },
+            ...prev,
+          ]);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "gallery_reactions" },
+        () => {
+          fetchReactions();
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "gallery_comments" },
+        (payload) => {
+          const row = payload.new as GalleryComment;
+          setComments((prev) => {
+            const existing = prev[row.file_id] ?? [];
+            return { ...prev, [row.file_id]: [...existing, row] };
+          });
         }
       )
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
+      supabase.removeChannel(channel);
     };
-  }, [supabase]);
+  }, [supabase, fetchReactions, fetchComments]);
 
   const fetchGalleryFiles = async () => {
     if (!supabase) {
@@ -114,15 +242,20 @@ const WeddingGalleryUpload = () => {
     try {
       console.log("Attempting to fetch gallery files...");
 
-      const { data, error } = await supabase
+      // Add a timeout so we don't hang forever if Supabase is paused
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Request timed out — the database may be unavailable. Please try again later.")), 10000)
+      );
+
+      const fetchPromise = supabase
         .from("gallery_files")
         .select("*")
         .order("created_at", { ascending: false });
 
+      const { data, error } = await Promise.race([fetchPromise, timeoutPromise]);
+
       if (error) {
         console.error("Error fetching gallery files:", error);
-        console.error("Error code:", error.code);
-        console.error("Error message:", error.message);
         setGalleryError(`Failed to load gallery: ${error.message}`);
         setFiles([]);
       } else {
@@ -134,12 +267,14 @@ const WeddingGalleryUpload = () => {
           type: file.type,
           url: file.url,
           uploadedAt: new Date(file.uploaded_at),
+          uploadedBy: file.uploaded_by || "Anonymous",
         }));
         setFiles(formattedFiles);
       }
     } catch (error) {
       console.error("Error fetching gallery files:", error);
-      setGalleryError(error instanceof Error ? error.message : "Unknown error loading gallery");
+      const message = error instanceof Error ? error.message : "Unknown error loading gallery";
+      setGalleryError(message);
       setFiles([]);
     } finally {
       setIsLoadingGallery(false);
@@ -163,6 +298,12 @@ const WeddingGalleryUpload = () => {
 
   const handleFiles = useCallback(async (selectedFiles: FileList | null) => {
     if (!selectedFiles || selectedFiles.length === 0) return;
+
+    if (!uploaderName.trim()) {
+      setNameError(true);
+      return;
+    }
+    setNameError(false);
 
     setIsUploading(true);
     setUploadSuccess(false);
@@ -230,6 +371,7 @@ const WeddingGalleryUpload = () => {
         url: file.url,
         name: file.name,
         type: file.type,
+        uploaded_by: uploaderName.trim(),
       }));
 
       const { error: insertError } = await supabase
@@ -262,7 +404,43 @@ const WeddingGalleryUpload = () => {
     }
 
     setIsUploading(false);
-  }, [cloudName, uploadPreset, supabase]);
+  }, [cloudName, uploadPreset, supabase, uploaderName]);
+
+  const handleReaction = useCallback(async (fileId: string, emoji: EmojiType) => {
+    if (!supabase) return;
+    const name = localStorage.getItem("weddingGalleryUploaderName") || "Anonymous";
+    const alreadyReacted = userReactions[fileId]?.[emoji];
+
+    // Optimistic update
+    setReactions((prev) => {
+      const cur = prev[fileId] || { heart: 0, like: 0, laugh: 0 };
+      return {
+        ...prev,
+        [fileId]: { ...cur, [emoji]: Math.max(0, cur[emoji] + (alreadyReacted ? -1 : 1)) },
+      };
+    });
+    setUserReactions((prev) => {
+      const cur = prev[fileId] || { heart: false, like: false, laugh: false };
+      return { ...prev, [fileId]: { ...cur, [emoji]: !alreadyReacted } };
+    });
+
+    setReactingTo(fileId + emoji);
+
+    if (alreadyReacted) {
+      await supabase
+        .from("gallery_reactions")
+        .delete()
+        .eq("file_id", fileId)
+        .eq("emoji", emoji)
+        .eq("reactor_name", name);
+    } else {
+      await supabase
+        .from("gallery_reactions")
+        .upsert({ file_id: fileId, emoji, reactor_name: name }, { onConflict: "file_id,emoji,reactor_name" });
+    }
+
+    setReactingTo(null);
+  }, [supabase, userReactions]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -302,18 +480,25 @@ const WeddingGalleryUpload = () => {
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
     setLightboxOpen(true);
+    setCommentPanelOpen(false);
+    setNewCommentMessage("");
   };
 
   const closeLightbox = () => {
     setLightboxOpen(false);
+    setCommentPanelOpen(false);
   };
 
   const goToPrevious = () => {
     setCurrentImageIndex((prev) => (prev === 0 ? files.length - 1 : prev - 1));
+    setCommentPanelOpen(false);
+    setNewCommentMessage("");
   };
 
   const goToNext = () => {
     setCurrentImageIndex((prev) => (prev === files.length - 1 ? 0 : prev + 1));
+    setCommentPanelOpen(false);
+    setNewCommentMessage("");
   };
 
   useEffect(() => {
@@ -375,6 +560,50 @@ const WeddingGalleryUpload = () => {
                         <span>Maximum file size: 80MB per file</span>
                       </li>
                     </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Name Input */}
+          <motion.div
+            className="mb-6"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.15 }}
+          >
+            <Card className={`bg-white ${nameError ? "border-red-400" : "border-gray-200"}`}>
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="p-3 bg-gray-100 rounded-full">
+                    <User className="h-6 w-6 text-gray-700" />
+                  </div>
+                  <div className="flex-1">
+                    <Label htmlFor="uploaderName" className="text-lg mb-2 block">
+                      Your Name <span className="text-red-500">*</span>
+                    </Label>
+                    <p className="text-gray-500 text-sm mb-3">
+                      Please enter your name so we know who shared these memories with us!
+                    </p>
+                    <Input
+                      id="uploaderName"
+                      type="text"
+                      placeholder="e.g. Sarah & Tom"
+                      value={uploaderName}
+                      onChange={(e) => {
+                        setUploaderName(e.target.value);
+                        localStorage.setItem("weddingGalleryUploaderName", e.target.value);
+                        if (e.target.value.trim()) setNameError(false);
+                      }}
+                      className={`max-w-sm ${nameError ? "border-red-400 focus-visible:ring-red-400" : ""}`}
+                    />
+                    {nameError && (
+                      <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
+                        <AlertCircle className="h-4 w-4" />
+                        Please enter your name before uploading.
+                      </p>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -508,9 +737,15 @@ const WeddingGalleryUpload = () => {
                   <AlertCircle className="h-6 w-6 text-red-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="font-medium text-red-800">Gallery Error</p>
+                  <p className="font-medium text-red-800">Gallery Unavailable</p>
                   <p className="text-red-600 text-sm">{galleryError}</p>
-                  <p className="text-red-500 text-xs mt-2">Please refresh the page or contact support if the problem persists.</p>
+                  <p className="text-red-500 text-xs mt-2">The database may be temporarily unavailable. You can still upload photos using the form below.</p>
+                  <button
+                    onClick={fetchGalleryFiles}
+                    className="mt-3 text-xs px-3 py-1 bg-red-100 hover:bg-red-200 text-red-700 rounded border border-red-300 transition-colors"
+                  >
+                    Retry
+                  </button>
                 </div>
               </CardContent>
             </Card>
@@ -539,30 +774,71 @@ const WeddingGalleryUpload = () => {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.3, delay: index * 0.05 }}
-                  className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 group cursor-pointer"
-                  onClick={() => openLightbox(index)}
+                  className="relative rounded-lg bg-gray-100 group"
                 >
-                  {file.type === "image" ? (
-                    <img
-                      src={file.url}
-                      alt={file.name}
-                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="relative w-full h-full">
-                      <video
+                  {/* Image / Video */}
+                  <div
+                    className="relative aspect-square rounded-lg overflow-hidden cursor-pointer"
+                    onClick={() => openLightbox(index)}
+                  >
+                    {file.type === "image" ? (
+                      <img
                         src={file.url}
-                        className="w-full h-full object-cover"
-                        muted
-                        playsInline
+                        alt={file.name}
+                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                        <div className="p-3 bg-white/90 rounded-full">
-                          <Video className="h-6 w-6 text-gray-800" />
+                    ) : (
+                      <div className="relative w-full h-full">
+                        <video
+                          src={file.url}
+                          className="w-full h-full object-cover"
+                          muted
+                          playsInline
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <div className="p-3 bg-white/90 rounded-full">
+                            <Video className="h-6 w-6 text-gray-800" />
+                          </div>
                         </div>
                       </div>
+                    )}
+                    {/* Uploader name overlay */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex items-center gap-1">
+                        <User className="h-3 w-3 text-white/80 flex-shrink-0" />
+                        <span className="text-white text-xs truncate">{file.uploadedBy}</span>
+                      </div>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Reaction bar */}
+                  <div className="flex items-center justify-around px-1 py-1.5 bg-white rounded-b-lg border border-t-0 border-gray-100">
+                    {(Object.keys(EMOJI_CONFIG) as EmojiType[]).map((emoji) => {
+                      const count = reactions[file.id]?.[emoji] ?? 0;
+                      const active = userReactions[file.id]?.[emoji] ?? false;
+                      const loading = reactingTo === file.id + emoji;
+                      return (
+                        <button
+                          key={emoji}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleReaction(file.id, emoji);
+                          }}
+                          disabled={loading}
+                          className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs transition-all ${
+                            active
+                              ? "bg-gray-100 scale-110 font-semibold"
+                              : "hover:bg-gray-50"
+                          }`}
+                        >
+                          <span className="text-sm leading-none">{EMOJI_CONFIG[emoji].emoji}</span>
+                          {count > 0 && (
+                            <span className="text-gray-600 ml-0.5">{count}</span>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -639,13 +915,19 @@ const WeddingGalleryUpload = () => {
             )}
 
             {/* Counter */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm z-50">
-              {currentImageIndex + 1} / {files.length}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm z-50 flex flex-col items-center gap-1">
+              <span>{currentImageIndex + 1} / {files.length}</span>
+              {files[currentImageIndex]?.uploadedBy && (
+                <span className="flex items-center gap-1 text-white/70 text-xs">
+                  <User className="h-3 w-3" />
+                  {files[currentImageIndex].uploadedBy}
+                </span>
+              )}
             </div>
 
             {/* Image/Video Content */}
             <div
-              className="max-w-7xl max-h-[90vh] w-full h-full flex items-center justify-center p-4"
+              className="max-w-7xl max-h-[85vh] w-full h-full flex items-center justify-center p-4 pb-20"
               onClick={(e) => e.stopPropagation()}
             >
               {files[currentImageIndex].type === "image" ? (
@@ -663,6 +945,132 @@ const WeddingGalleryUpload = () => {
                 />
               )}
             </div>
+
+            {/* Bottom Bar: Reactions + Comment Toggle */}
+            <div
+              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Reaction Bar */}
+              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20">
+                {(Object.keys(EMOJI_CONFIG) as EmojiType[]).map((emoji) => {
+                  const currentFile = files[currentImageIndex];
+                  const count = reactions[currentFile.id]?.[emoji] ?? 0;
+                  const active = userReactions[currentFile.id]?.[emoji] ?? false;
+                  const loading = reactingTo === currentFile.id + emoji;
+                  return (
+                    <button
+                      key={emoji}
+                      onClick={() => handleReaction(currentFile.id, emoji)}
+                      disabled={loading}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm transition-all duration-200 ${
+                        active
+                          ? "bg-white/25 scale-110 font-semibold"
+                          : "hover:bg-white/15"
+                      }`}
+                    >
+                      <span className="text-xl leading-none">{EMOJI_CONFIG[emoji].emoji}</span>
+                      {count > 0 && (
+                        <span className="text-white font-medium text-sm">{count}</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Comment Button */}
+              <button
+                onClick={() => setCommentPanelOpen((o) => !o)}
+                className={`flex items-center gap-2 px-4 py-3 rounded-full backdrop-blur-sm border transition-all duration-200 ${
+                  commentPanelOpen
+                    ? "bg-white/25 border-white/40 text-white"
+                    : "bg-white/10 border-white/20 text-white hover:bg-white/20"
+                }`}
+              >
+                <MessageCircle className="h-5 w-5" />
+                <span className="text-sm font-medium">
+                  {(comments[files[currentImageIndex].id] ?? []).length > 0
+                    ? (comments[files[currentImageIndex].id] ?? []).length
+                    : "Comment"}
+                </span>
+              </button>
+            </div>
+
+            {/* Comment Panel */}
+            <AnimatePresence>
+              {commentPanelOpen && (
+                <motion.div
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 40 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-4 top-16 bottom-20 w-80 z-50 flex flex-col"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 flex flex-col h-full overflow-hidden">
+                    {/* Panel Header */}
+                    <div className="px-4 py-3 border-b border-white/20">
+                      <h3 className="text-white font-semibold text-sm">Comments</h3>
+                    </div>
+
+                    {/* Comments List */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
+                      {(comments[files[currentImageIndex].id] ?? []).length === 0 ? (
+                        <p className="text-white/50 text-sm text-center py-6">
+                          Be the first to leave a comment!
+                        </p>
+                      ) : (
+                        (comments[files[currentImageIndex].id] ?? []).map((c) => (
+                          <div key={c.id} className="bg-white/10 rounded-xl px-3 py-2.5">
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <User className="h-3 w-3 text-white/70" />
+                              <span className="text-white/90 text-xs font-semibold">{c.commenter_name}</span>
+                            </div>
+                            <p className="text-white/80 text-sm leading-snug">{c.message}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Comment Input */}
+                    <div className="p-3 border-t border-white/20 space-y-2">
+                      <Input
+                        placeholder="Your name"
+                        value={newCommentName}
+                        onChange={(e) => setNewCommentName(e.target.value)}
+                        className="bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm h-8 focus-visible:ring-white/30"
+                      />
+                      <div className="flex gap-2">
+                        <Textarea
+                          placeholder="Leave a message..."
+                          value={newCommentMessage}
+                          onChange={(e) => setNewCommentMessage(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleAddComment(files[currentImageIndex].id);
+                            }
+                          }}
+                          rows={2}
+                          className="bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm resize-none focus-visible:ring-white/30 flex-1"
+                        />
+                        <button
+                          onClick={() => handleAddComment(files[currentImageIndex].id)}
+                          disabled={isSubmittingComment || !newCommentName.trim() || !newCommentMessage.trim()}
+                          className="self-end p-2 rounded-full bg-white/20 hover:bg-white/30 text-white disabled:opacity-40 transition-all"
+                        >
+                          {isSubmittingComment ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

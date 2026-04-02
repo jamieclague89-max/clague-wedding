@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      gallery_comments: {
+        Row: {
+          commenter_name: string
+          created_at: string | null
+          file_id: string
+          id: string
+          message: string
+        }
+        Insert: {
+          commenter_name: string
+          created_at?: string | null
+          file_id: string
+          id?: string
+          message: string
+        }
+        Update: {
+          commenter_name?: string
+          created_at?: string | null
+          file_id?: string
+          id?: string
+          message?: string
+        }
+        Relationships: []
+      }
       gallery_files: {
         Row: {
           created_at: string | null
@@ -21,6 +45,7 @@ export type Database = {
           name: string
           type: string
           uploaded_at: string | null
+          uploaded_by: string
           url: string
         }
         Insert: {
@@ -29,6 +54,7 @@ export type Database = {
           name: string
           type: string
           uploaded_at?: string | null
+          uploaded_by?: string
           url: string
         }
         Update: {
@@ -37,7 +63,32 @@ export type Database = {
           name?: string
           type?: string
           uploaded_at?: string | null
+          uploaded_by?: string
           url?: string
+        }
+        Relationships: []
+      }
+      gallery_reactions: {
+        Row: {
+          created_at: string | null
+          emoji: string
+          file_id: string
+          id: string
+          reactor_name: string
+        }
+        Insert: {
+          created_at?: string | null
+          emoji: string
+          file_id: string
+          id?: string
+          reactor_name?: string
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string
+          file_id?: string
+          id?: string
+          reactor_name?: string
         }
         Relationships: []
       }
