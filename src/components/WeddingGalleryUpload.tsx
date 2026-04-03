@@ -882,7 +882,7 @@ const WeddingGalleryUpload = () => {
                       </div>
                     )}
                     {/* Uploader name overlay */}
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2">
                       <div className="flex items-center gap-1">
                         <User className="h-3 w-3 text-white/80 flex-shrink-0" />
                         <span className="text-white text-xs truncate">{file.uploadedBy}</span>
