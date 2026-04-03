@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Check, AlertCircle, Image, Video, Loader2, ChevronLeft, ChevronRight, User, MessageCircle, Send } from "lucide-react";
+import { Upload, X, Check, AlertCircle, Image, Video, Loader2, ChevronLeft, ChevronRight, User, MessageCircle, Send, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -52,6 +52,13 @@ interface UploadError {
   message: string;
 }
 
+interface PendingFile {
+  id: string;
+  file: File;
+  previewUrl: string;
+  type: "image" | "video";
+}
+
 interface GalleryComment {
   id: string;
   file_id: string;
@@ -84,6 +91,7 @@ const WeddingGalleryUpload = () => {
   const [newCommentName, setNewCommentName] = useState(() => localStorage.getItem("weddingGalleryUploaderName") || "");
   const [newCommentMessage, setNewCommentMessage] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
@@ -299,6 +307,44 @@ const WeddingGalleryUpload = () => {
   const handleFiles = useCallback(async (selectedFiles: FileList | null) => {
     if (!selectedFiles || selectedFiles.length === 0) return;
 
+    setUploadErrors([]);
+    const errors: UploadError[] = [];
+    const newPending: PendingFile[] = [];
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      const error = validateFile(file);
+      if (error) {
+        errors.push({ file: file.name, message: error });
+        continue;
+      }
+      const isImage = ALLOWED_IMAGE_TYPES.includes(file.type);
+      const previewUrl = URL.createObjectURL(file);
+      newPending.push({
+        id: `${file.name}-${file.size}-${Date.now()}-${i}`,
+        file,
+        previewUrl,
+        type: isImage ? "image" : "video",
+      });
+    }
+
+    if (errors.length > 0) setUploadErrors(errors);
+    if (newPending.length > 0) {
+      setPendingFiles((prev) => [...prev, ...newPending]);
+    }
+  }, []);
+
+  const removePendingFile = useCallback((id: string) => {
+    setPendingFiles((prev) => {
+      const toRemove = prev.find((f) => f.id === id);
+      if (toRemove) URL.revokeObjectURL(toRemove.previewUrl);
+      return prev.filter((f) => f.id !== id);
+    });
+  }, []);
+
+  const handleUpload = useCallback(async () => {
+    if (pendingFiles.length === 0) return;
+
     if (!uploaderName.trim()) {
       setNameError(true);
       return;
@@ -312,61 +358,43 @@ const WeddingGalleryUpload = () => {
     const errors: UploadError[] = [];
     const newFiles: UploadedFile[] = [];
 
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
-      const error = validateFile(file);
-
-      if (error) {
-        errors.push({ file: file.name, message: error });
-        continue;
-      }
-
+    for (const pending of pendingFiles) {
       try {
-        // Upload to Cloudinary
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", pending.file);
         formData.append("upload_preset", uploadPreset);
         formData.append("tags", "wedding-gallery");
         formData.append("folder", "wedding-gallery");
 
-        const isImage = ALLOWED_IMAGE_TYPES.includes(file.type);
-        const resourceType = isImage ? "image" : "video";
+        const resourceType = pending.type === "image" ? "image" : "video";
 
         const response = await fetch(
           `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
-          {
-            method: "POST",
-            body: formData,
-          }
+          { method: "POST", body: formData }
         );
 
-        if (!response.ok) {
-          throw new Error("Upload failed");
-        }
+        if (!response.ok) throw new Error("Upload failed");
 
         const data = await response.json();
-
         newFiles.push({
           id: data.public_id,
-          name: file.name,
-          type: isImage ? "image" : "video",
+          name: pending.file.name,
+          type: pending.type,
           url: data.secure_url,
           uploadedAt: new Date(data.created_at),
+          uploadedBy: uploaderName.trim(),
         });
-      } catch (err) {
+      } catch {
         errors.push({
-          file: file.name,
-          message: `Failed to upload "${file.name}". Please try again.`,
+          file: pending.file.name,
+          message: `Failed to upload "${pending.file.name}". Please try again.`,
         });
       }
     }
 
-    if (errors.length > 0) {
-      setUploadErrors(errors);
-    }
+    if (errors.length > 0) setUploadErrors(errors);
 
     if (newFiles.length > 0 && supabase) {
-      // Save to Supabase
       const filesToInsert = newFiles.map((file) => ({
         url: file.url,
         name: file.name,
@@ -379,32 +407,29 @@ const WeddingGalleryUpload = () => {
         .insert(filesToInsert);
 
       if (insertError) {
-        console.error("Error saving to gallery:", insertError);
-        setUploadErrors([
-          ...uploadErrors,
-          {
-            file: "Gallery",
-            message: "Files uploaded but failed to save to gallery. Please refresh the page.",
-          },
+        setUploadErrors((prev) => [
+          ...prev,
+          { file: "Gallery", message: "Files uploaded but failed to save to gallery. Please refresh the page." },
         ]);
       } else {
         setUploadSuccess(true);
+        // Revoke all object URLs
+        setPendingFiles((prev) => {
+          prev.forEach((f) => URL.revokeObjectURL(f.previewUrl));
+          return [];
+        });
         setTimeout(() => setUploadSuccess(false), 3000);
-        // Refresh gallery to show new files
         await fetchGalleryFiles();
       }
     } else if (newFiles.length > 0 && !supabase) {
-      setUploadErrors([
-        ...uploadErrors,
-        {
-          file: "Gallery",
-          message: "Files uploaded to cloud but database is not available.",
-        },
+      setUploadErrors((prev) => [
+        ...prev,
+        { file: "Gallery", message: "Files uploaded to cloud but database is not available." },
       ]);
     }
 
     setIsUploading(false);
-  }, [cloudName, uploadPreset, supabase, uploaderName]);
+  }, [pendingFiles, uploaderName, cloudName, uploadPreset, supabase]);
 
   const handleReaction = useCallback(async (fileId: string, emoji: EmojiType) => {
     if (!supabase) return;
@@ -566,94 +591,148 @@ const WeddingGalleryUpload = () => {
             </Card>
           </motion.div>
 
-          {/* Name Input */}
-          <motion.div
-            className="mb-6"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-          >
-            <Card className={`bg-white ${nameError ? "border-red-400" : "border-gray-200"}`}>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <div className="p-3 bg-gray-100 rounded-full">
-                    <User className="h-6 w-6 text-gray-700" />
-                  </div>
-                  <div className="flex-1">
-                    <Label htmlFor="uploaderName" className="text-lg mb-2 block">
-                      Your Name <span className="text-red-500">*</span>
-                    </Label>
-                    <p className="text-gray-500 text-sm mb-3">
-                      Please enter your name so we know who shared these memories with us!
-                    </p>
-                    <Input
-                      id="uploaderName"
-                      type="text"
-                      placeholder="e.g. Sarah & Tom"
-                      value={uploaderName}
-                      onChange={(e) => {
-                        setUploaderName(e.target.value);
-                        localStorage.setItem("weddingGalleryUploaderName", e.target.value);
-                        if (e.target.value.trim()) setNameError(false);
-                      }}
-                      className={`max-w-sm ${nameError ? "border-red-400 focus-visible:ring-red-400" : ""}`}
-                    />
-                    {nameError && (
-                      <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
-                        <AlertCircle className="h-4 w-4" />
-                        Please enter your name before uploading.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          {/* Upload Area */}
+          {/* Upload Box (name + drag-drop + preview) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
-            <div
-              className={`relative border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300 ${
-                dragActive
-                  ? "border-black bg-gray-100"
-                  : "border-gray-300 bg-white hover:border-gray-400"
-              }`}
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                accept={[...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES].join(",")}
-                onChange={handleInputChange}
-                className="hidden"
-              />
+            <Card className={`bg-white ${nameError ? "border-red-400" : "border-gray-200"}`}>
+              <CardContent className="p-6 space-y-5">
 
-              {isUploading ? (
-                <div className="flex flex-col items-center">
-                  <Loader2 className="h-12 w-12 text-gray-400 animate-spin mb-4" />
-                  <p className="text-gray-600 font-medium">Uploading your files...</p>
+                {/* Your Name */}
+                <div>
+                  <Label htmlFor="uploaderName" className="text-sm font-medium mb-1.5 flex items-center gap-1.5">
+                    <User className="h-4 w-4 text-gray-500" />
+                    Your Name <span className="text-red-500">*</span>
+                  </Label>
+                  <Input
+                    id="uploaderName"
+                    type="text"
+                    placeholder="e.g. Sarah & Tom"
+                    value={uploaderName}
+                    onChange={(e) => {
+                      setUploaderName(e.target.value);
+                      localStorage.setItem("weddingGalleryUploaderName", e.target.value);
+                      if (e.target.value.trim()) setNameError(false);
+                    }}
+                    className={`w-full ${nameError ? "border-red-400 focus-visible:ring-red-400" : ""}`}
+                  />
+                  {nameError && (
+                    <p className="text-red-500 text-sm mt-1.5 flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4" />
+                      Please enter your name before uploading.
+                    </p>
+                  )}
                 </div>
-              ) : (
-                <>
-                  <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-600 mb-2">
-                    Drag and drop your photos and videos here
+
+                <Separator className="bg-gray-100" />
+
+                {/* Drag & Drop Zone */}
+                <div
+                  className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all duration-300 ${
+                    dragActive
+                      ? "border-black bg-gray-100"
+                      : "border-gray-300 bg-gray-50 hover:border-gray-400 hover:bg-gray-50"
+                  }`}
+                  onDragEnter={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDragOver={handleDrag}
+                  onDrop={handleDrop}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept={[...ALLOWED_IMAGE_TYPES, ...ALLOWED_VIDEO_TYPES].join(",")}
+                    onChange={handleInputChange}
+                    className="hidden"
+                  />
+                  <Upload className="h-10 w-10 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-600 mb-1 font-medium">
+                    Drag & drop your photos and videos here
                   </p>
                   <p className="text-gray-400 text-sm mb-4">or</p>
-                  <Button onClick={openFileDialog} variant="outline" size="lg">
+                  <Button onClick={openFileDialog} variant="outline" size="sm">
                     Browse Files
                   </Button>
-                </>
-              )}
-            </div>
+                  <p className="text-gray-400 text-xs mt-3">You can select multiple files at once</p>
+                </div>
+
+                {/* Pending files preview */}
+                {pendingFiles.length > 0 && (
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <p className="text-sm font-medium text-gray-700">
+                        {pendingFiles.length} file{pendingFiles.length !== 1 ? "s" : ""} ready to upload
+                      </p>
+                      <button
+                        onClick={() => {
+                          pendingFiles.forEach((f) => URL.revokeObjectURL(f.previewUrl));
+                          setPendingFiles([]);
+                        }}
+                        className="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1"
+                      >
+                        <Trash2 className="h-3 w-3" /> Clear all
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                      {pendingFiles.map((pf) => (
+                        <div key={pf.id} className="relative group aspect-square rounded-lg overflow-hidden bg-gray-100">
+                          {pf.type === "image" ? (
+                            <img
+                              src={pf.previewUrl}
+                              alt={pf.file.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                              <Video className="h-8 w-8 text-gray-500" />
+                            </div>
+                          )}
+                          <button
+                            onClick={() => removePendingFile(pf.id)}
+                            className="absolute top-1 right-1 p-1 bg-black/60 hover:bg-black/80 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                          <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-1.5 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <p className="text-white text-[10px] truncate">{pf.file.name}</p>
+                          </div>
+                        </div>
+                      ))}
+                      {/* Add more button */}
+                      <button
+                        onClick={openFileDialog}
+                        className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 flex flex-col items-center justify-center gap-1 transition-all"
+                      >
+                        <Plus className="h-6 w-6 text-gray-400" />
+                        <span className="text-xs text-gray-400">Add more</span>
+                      </button>
+                    </div>
+
+                    <Button
+                      onClick={handleUpload}
+                      disabled={isUploading}
+                      className="mt-4 w-full"
+                      size="lg"
+                    >
+                      {isUploading ? (
+                        <>
+                          <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                          Uploading {pendingFiles.length} file{pendingFiles.length !== 1 ? "s" : ""}...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-5 w-5 mr-2" />
+                          Upload {pendingFiles.length} file{pendingFiles.length !== 1 ? "s" : ""}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </motion.div>
 
           {/* Success Message */}
