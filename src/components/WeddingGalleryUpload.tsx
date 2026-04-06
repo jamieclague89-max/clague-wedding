@@ -262,9 +262,11 @@ const WeddingGalleryUpload = () => {
     });
     if (!error) {
       setNewCommentMessage("");
+      // Also manually refresh in case real-time misses it
+      fetchComments();
     }
     setIsSubmittingComment(false);
-  }, [supabase, newCommentName, newCommentMessage]);
+  }, [supabase, newCommentName, newCommentMessage, fetchComments]);
 
   // Fetch existing images from Supabase on mount
   useEffect(() => {
