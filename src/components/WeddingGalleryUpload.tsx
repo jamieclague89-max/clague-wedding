@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, X, Check, AlertCircle, Image, Video, Loader2, ChevronLeft, ChevronRight, User, MessageCircle, Send, Plus, Trash2 } from "lucide-react";
+import { Upload, X, Check, AlertCircle, Image, Video, Loader2, ChevronLeft, ChevronRight, User, MessageCircle, Send, Plus, Trash2, Download, ArrowUpDown, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -67,7 +67,30 @@ interface GalleryComment {
   created_at: string;
 }
 
+interface FileUploadProgress {
+  id: string;
+  name: string;
+  status: "pending" | "uploading" | "done" | "error";
+  progress: number; // 0-100
+  error?: string;
+}
+
+type SortOrder = "newest" | "oldest" | "most_liked";
+
 const MAX_FILE_SIZE = 80 * 1024 * 1024; // 80MB in bytes
+const ITEMS_PER_PAGE = 12;
+
+// Build a Cloudinary thumbnail URL for grid display (400px wide, auto quality, auto format)
+const getCloudinaryThumb = (url: string): string => {
+  // Cloudinary URLs look like: https://res.cloudinary.com/<cloud>/image/upload/...
+  // We insert transformation params after /upload/
+  const uploadMarker = "/upload/";
+  const idx = url.indexOf(uploadMarker);
+  if (idx === -1) return url; // not a Cloudinary URL, return as-is
+  const base = url.slice(0, idx + uploadMarker.length);
+  const rest = url.slice(idx + uploadMarker.length);
+  return `${base}w_400,h_400,c_fill,q_auto,f_auto/${rest}`;
+};
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/heic", "image/heif"];
 const ALLOWED_VIDEO_TYPES = ["video/mp4", "video/quicktime", "video/webm", "video/mov"];
 
@@ -92,10 +115,72 @@ const WeddingGalleryUpload = () => {
   const [newCommentMessage, setNewCommentMessage] = useState("");
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
+  const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
+  const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
+  const [filterUploader, setFilterUploader] = useState<string>("all");
+  const [filterDate, setFilterDate] = useState<string>("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [fileProgressList, setFileProgressList] = useState<FileUploadProgress[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+
+  // Unique uploaders for filter dropdown
+  const uniqueUploaders = useMemo(() => {
+    const names = files.map((f) => f.uploadedBy).filter(Boolean);
+    return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b));
+  }, [files]);
+
+  // Unique dates for filter dropdown (YYYY-MM-DD, newest first)
+  const uniqueDates = useMemo(() => {
+    const dateSet = new Set<string>();
+    files.forEach((f) => {
+      const d = new Date(f.uploadedAt);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      dateSet.add(`${yyyy}-${mm}-${dd}`);
+    });
+    return Array.from(dateSet).sort((a, b) => b.localeCompare(a));
+  }, [files]);
+
+  // Sorted & filtered files derived from raw files + reactions
+  const sortedFiles = useMemo(() => {
+    let result = [...files];
+
+    // Filter by uploader
+    if (filterUploader !== "all") {
+      result = result.filter((f) => f.uploadedBy === filterUploader);
+    }
+
+    // Filter by date (YYYY-MM-DD)
+    if (filterDate) {
+      result = result.filter((f) => {
+        const d = new Date(f.uploadedAt);
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const dd = String(d.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}` === filterDate;
+      });
+    }
+
+    // Sort
+    if (sortOrder === "most_liked") {
+      result.sort((a, b) => {
+        const totalA = Object.values(reactions[a.id] ?? { heart: 0, like: 0, laugh: 0 }).reduce((s, v) => s + v, 0);
+        const totalB = Object.values(reactions[b.id] ?? { heart: 0, like: 0, laugh: 0 }).reduce((s, v) => s + v, 0);
+        return totalB - totalA;
+      });
+    } else if (sortOrder === "oldest") {
+      result.reverse();
+    }
+    // "newest" — already newest-first from fetch, no change needed
+
+    return result;
+  }, [files, reactions, sortOrder, filterUploader, filterDate]);
   
   // Initialize Supabase client with memoization to prevent recreation
   const supabase = useMemo<SupabaseClient | null>(() => {
@@ -355,10 +440,26 @@ const WeddingGalleryUpload = () => {
     setUploadSuccess(false);
     setUploadErrors([]);
 
+    // Initialise per-file progress list
+    const initialProgress: FileUploadProgress[] = pendingFiles.map((pf) => ({
+      id: pf.id,
+      name: pf.file.name,
+      status: "pending",
+      progress: 0,
+    }));
+    setFileProgressList(initialProgress);
+
     const errors: UploadError[] = [];
     const newFiles: UploadedFile[] = [];
 
-    for (const pending of pendingFiles) {
+    for (let i = 0; i < pendingFiles.length; i++) {
+      const pending = pendingFiles[i];
+
+      // Mark as uploading
+      setFileProgressList((prev) =>
+        prev.map((p) => (p.id === pending.id ? { ...p, status: "uploading", progress: 10 } : p))
+      );
+
       try {
         const formData = new FormData();
         formData.append("file", pending.file);
@@ -368,23 +469,49 @@ const WeddingGalleryUpload = () => {
 
         const resourceType = pending.type === "image" ? "image" : "video";
 
-        const response = await fetch(
-          `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`,
-          { method: "POST", body: formData }
+        // Use XHR so we can track upload progress
+        const uploadResult = await new Promise<any>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open("POST", `https://api.cloudinary.com/v1_1/${cloudName}/${resourceType}/upload`);
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const pct = Math.round((event.loaded / event.total) * 90) + 5; // 5-95
+              setFileProgressList((prev) =>
+                prev.map((p) => (p.id === pending.id ? { ...p, progress: pct } : p))
+              );
+            }
+          };
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              resolve(JSON.parse(xhr.responseText));
+            } else {
+              reject(new Error("Upload failed"));
+            }
+          };
+          xhr.onerror = () => reject(new Error("Upload failed"));
+          xhr.send(formData);
+        });
+
+        setFileProgressList((prev) =>
+          prev.map((p) => (p.id === pending.id ? { ...p, status: "done", progress: 100 } : p))
         );
 
-        if (!response.ok) throw new Error("Upload failed");
-
-        const data = await response.json();
         newFiles.push({
-          id: data.public_id,
+          id: uploadResult.public_id,
           name: pending.file.name,
           type: pending.type,
-          url: data.secure_url,
-          uploadedAt: new Date(data.created_at),
+          url: uploadResult.secure_url,
+          uploadedAt: new Date(uploadResult.created_at),
           uploadedBy: uploaderName.trim(),
         });
       } catch {
+        setFileProgressList((prev) =>
+          prev.map((p) =>
+            p.id === pending.id
+              ? { ...p, status: "error", progress: 0, error: "Failed to upload" }
+              : p
+          )
+        );
         errors.push({
           file: pending.file.name,
           message: `Failed to upload "${pending.file.name}". Please try again.`,
@@ -418,7 +545,10 @@ const WeddingGalleryUpload = () => {
           prev.forEach((f) => URL.revokeObjectURL(f.previewUrl));
           return [];
         });
-        setTimeout(() => setUploadSuccess(false), 3000);
+        setTimeout(() => {
+          setUploadSuccess(false);
+          setFileProgressList([]);
+        }, 3000);
         await fetchGalleryFiles();
       }
     } else if (newFiles.length > 0 && !supabase) {
@@ -515,13 +645,13 @@ const WeddingGalleryUpload = () => {
   };
 
   const goToPrevious = () => {
-    setCurrentImageIndex((prev) => (prev === 0 ? files.length - 1 : prev - 1));
+    setCurrentImageIndex((prev) => (prev === 0 ? sortedFiles.length - 1 : prev - 1));
     setCommentPanelOpen(false);
     setNewCommentMessage("");
   };
 
   const goToNext = () => {
-    setCurrentImageIndex((prev) => (prev === files.length - 1 ? 0 : prev + 1));
+    setCurrentImageIndex((prev) => (prev === sortedFiles.length - 1 ? 0 : prev + 1));
     setCommentPanelOpen(false);
     setNewCommentMessage("");
   };
@@ -536,7 +666,46 @@ const WeddingGalleryUpload = () => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [lightboxOpen, files.length]);
+  }, [lightboxOpen, sortedFiles.length]);
+
+  // Touch swipe handlers for lightbox
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    // Only act if horizontal swipe is dominant and exceeds threshold
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) goToNext();
+      else goToPrevious();
+    }
+  }, []);
+
+  const handleDownload = useCallback(async () => {
+    const file = sortedFiles[currentImageIndex];
+    if (!file) return;
+    try {
+      const response = await fetch(file.url);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name || `wedding-memory-${currentImageIndex + 1}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback: open in new tab
+      window.open(file.url, "_blank");
+    }
+  }, [sortedFiles, currentImageIndex]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -720,7 +889,7 @@ const WeddingGalleryUpload = () => {
                       {isUploading ? (
                         <>
                           <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                          Uploading {pendingFiles.length} file{pendingFiles.length !== 1 ? "s" : ""}...
+                          Uploading...
                         </>
                       ) : (
                         <>
@@ -729,6 +898,37 @@ const WeddingGalleryUpload = () => {
                         </>
                       )}
                     </Button>
+
+                    {/* Per-file progress list */}
+                    {isUploading && fileProgressList.length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        {fileProgressList.map((fp) => (
+                          <div key={fp.id}>
+                            <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                              <span className="truncate max-w-[70%]">{fp.name}</span>
+                              <span className="ml-2 flex-shrink-0">
+                                {fp.status === "done" && <span className="text-green-600 font-medium">Done</span>}
+                                {fp.status === "error" && <span className="text-red-500 font-medium">Failed</span>}
+                                {fp.status === "uploading" && <span>{fp.progress}%</span>}
+                                {fp.status === "pending" && <span className="text-gray-400">Waiting…</span>}
+                              </span>
+                            </div>
+                            <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                              <div
+                                className={`h-full rounded-full transition-all duration-300 ${
+                                  fp.status === "done"
+                                    ? "bg-green-500"
+                                    : fp.status === "error"
+                                    ? "bg-red-400"
+                                    : "bg-black"
+                                }`}
+                                style={{ width: `${fp.progress}%` }}
+                              />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -841,18 +1041,133 @@ const WeddingGalleryUpload = () => {
             >
               <h2 className="font-heading text-4xl mb-4">Shared Memories</h2>
               <p className="text-gray-600">
-                {files.length} {files.length === 1 ? "memory" : "memories"} shared so far
+                {sortedFiles.length !== files.length
+                  ? `${sortedFiles.length} of ${files.length} ${files.length === 1 ? "memory" : "memories"}`
+                  : `${files.length} ${files.length === 1 ? "memory" : "memories"} shared so far`}
               </p>
               <Separator className="mt-6 max-w-[100px] mx-auto bg-gray-300" />
+
+              {/* Sort Controls */}
+              <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+                <ArrowUpDown className="h-4 w-4 text-gray-400" />
+                <span className="text-sm text-gray-500 mr-1">Sort:</span>
+                <button
+                  onClick={() => setSortOrder("newest")}
+                  className={`px-4 py-1.5 rounded-full text-sm transition-all border ${
+                    sortOrder === "newest"
+                      ? "bg-black text-white border-black"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  Newest first
+                </button>
+                <button
+                  onClick={() => setSortOrder("oldest")}
+                  className={`px-4 py-1.5 rounded-full text-sm transition-all border ${
+                    sortOrder === "oldest"
+                      ? "bg-black text-white border-black"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  Oldest first
+                </button>
+                <button
+                  onClick={() => setSortOrder("most_liked")}
+                  className={`px-4 py-1.5 rounded-full text-sm transition-all border ${
+                    sortOrder === "most_liked"
+                      ? "bg-black text-white border-black"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  Most liked
+                </button>
+
+                {/* Filter toggle */}
+                <button
+                  onClick={() => setShowFilters((v) => !v)}
+                  className={`ml-2 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm transition-all border ${
+                    showFilters || filterUploader !== "all" || filterDate
+                      ? "bg-black text-white border-black"
+                      : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                  }`}
+                >
+                  <Filter className="h-3.5 w-3.5" />
+                  Filter
+                  {(filterUploader !== "all" || filterDate) && (
+                    <span className="ml-1 bg-white text-black rounded-full w-4 h-4 text-xs flex items-center justify-center font-semibold">
+                      {(filterUploader !== "all" ? 1 : 0) + (filterDate ? 1 : 0)}
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* Filter Panel */}
+              <AnimatePresence>
+                {showFilters && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 flex flex-wrap items-center justify-center gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200">
+                      {/* Uploader filter */}
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-gray-400 shrink-0" />
+                        <label className="text-sm text-gray-500 whitespace-nowrap">Uploaded by:</label>
+                        <select
+                          value={filterUploader}
+                          onChange={(e) => { setFilterUploader(e.target.value); setVisibleCount(ITEMS_PER_PAGE); }}
+                          className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+                        >
+                          <option value="all">Everyone</option>
+                          {uniqueUploaders.map((name) => (
+                            <option key={name} value={name}>{name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {/* Date filter */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-400 text-sm">📅</span>
+                        <label className="text-sm text-gray-500 whitespace-nowrap">Date uploaded:</label>
+                        <select
+                          value={filterDate}
+                          onChange={(e) => { setFilterDate(e.target.value); setVisibleCount(ITEMS_PER_PAGE); }}
+                          className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-1 focus:ring-black"
+                        >
+                          <option value="">All dates</option>
+                          {uniqueDates.map((date) => {
+                            const [yyyy, mm, dd] = date.split("-");
+                            const label = new Date(Number(yyyy), Number(mm) - 1, Number(dd)).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+                            return <option key={date} value={date}>{label}</option>;
+                          })}
+                        </select>
+                      </div>
+
+                      {/* Clear filters */}
+                      {(filterUploader !== "all" || filterDate) && (
+                        <button
+                          onClick={() => { setFilterUploader("all"); setFilterDate(""); setVisibleCount(ITEMS_PER_PAGE); }}
+                          className="text-sm text-gray-500 underline hover:text-black transition-colors"
+                        >
+                          Clear filters
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
 
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {files.map((file, index) => (
+              {sortedFiles.slice(0, visibleCount).map((file, index) => (
                 <motion.div
                   key={file.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
+                  initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  transition={{ duration: 0.25 }}
                   className="relative rounded-lg bg-gray-100 group"
                 >
                   {/* Image / Video */}
@@ -862,8 +1177,10 @@ const WeddingGalleryUpload = () => {
                   >
                     {file.type === "image" ? (
                       <img
-                        src={file.url}
-                        alt={file.name}
+                        src={getCloudinaryThumb(file.url)}
+                        alt={file.uploadedBy ? `Photo by ${file.uploadedBy}` : file.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />
                     ) : (
@@ -873,6 +1190,7 @@ const WeddingGalleryUpload = () => {
                           className="w-full h-full object-cover"
                           muted
                           playsInline
+                          preload="none"
                         />
                         <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                           <div className="p-3 bg-white/90 rounded-full">
@@ -890,37 +1208,65 @@ const WeddingGalleryUpload = () => {
                     </div>
                   </div>
 
-                  {/* Reaction bar */}
-                  <div className="flex items-center justify-around px-1 py-1.5 bg-white rounded-b-lg border border-t-0 border-gray-100">
-                    {(Object.keys(EMOJI_CONFIG) as EmojiType[]).map((emoji) => {
-                      const count = reactions[file.id]?.[emoji] ?? 0;
-                      const active = userReactions[file.id]?.[emoji] ?? false;
-                      const loading = reactingTo === file.id + emoji;
-                      return (
-                        <button
-                          key={emoji}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleReaction(file.id, emoji);
-                          }}
-                          disabled={loading}
-                          className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs transition-all ${
-                            active
-                              ? "bg-gray-100 scale-110 font-semibold"
-                              : "hover:bg-gray-50"
-                          }`}
-                        >
-                          <span className="text-sm leading-none">{EMOJI_CONFIG[emoji].emoji}</span>
-                          {count > 0 && (
-                            <span className="text-gray-600 ml-0.5">{count}</span>
-                          )}
-                        </button>
-                      );
-                    })}
+                  {/* Reaction bar + comment count */}
+                  <div className="flex items-center justify-between px-1 py-1.5 bg-white rounded-b-lg border border-t-0 border-gray-100">
+                    <div className="flex items-center gap-0.5">
+                      {(Object.keys(EMOJI_CONFIG) as EmojiType[]).map((emoji) => {
+                        const count = reactions[file.id]?.[emoji] ?? 0;
+                        const active = userReactions[file.id]?.[emoji] ?? false;
+                        const loading = reactingTo === file.id + emoji;
+                        return (
+                          <button
+                            key={emoji}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleReaction(file.id, emoji);
+                            }}
+                            disabled={loading}
+                            className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-xs transition-all ${
+                              active
+                                ? "bg-gray-100 scale-110 font-semibold"
+                                : "hover:bg-gray-50"
+                            }`}
+                          >
+                            <span className="text-sm leading-none">{EMOJI_CONFIG[emoji].emoji}</span>
+                            {count > 0 && (
+                              <span className="text-gray-600 ml-0.5">{count}</span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {/* Comment count badge */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openLightbox(index);
+                        setCommentPanelOpen(true);
+                      }}
+                      className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs text-gray-500 hover:bg-gray-50 transition-colors"
+                    >
+                      <MessageCircle className="h-3.5 w-3.5" />
+                      {(comments[file.id] ?? []).length > 0 && (
+                        <span>{(comments[file.id] ?? []).length}</span>
+                      )}
+                    </button>
                   </div>
                 </motion.div>
               ))}
             </div>
+
+            {/* Load more */}
+            {visibleCount < sortedFiles.length && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => setVisibleCount((c) => c + ITEMS_PER_PAGE)}
+                  className="px-8 py-3 border border-gray-300 rounded-full text-sm tracking-widest uppercase hover:bg-gray-50 transition-colors"
+                >
+                  Load more ({sortedFiles.length - visibleCount} remaining)
+                </button>
+              </div>
+            )}
           </div>
         </section>
       ) : (
@@ -947,13 +1293,15 @@ const WeddingGalleryUpload = () => {
 
       {/* Lightbox Modal */}
       <AnimatePresence>
-        {lightboxOpen && files.length > 0 && (
+        {lightboxOpen && sortedFiles.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
             onClick={closeLightbox}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
             {/* Close Button */}
             <Button
@@ -965,8 +1313,19 @@ const WeddingGalleryUpload = () => {
               <X className="h-6 w-6" />
             </Button>
 
+            {/* Download Button */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-4 right-16 text-white hover:bg-white/10 z-50"
+              onClick={(e) => { e.stopPropagation(); handleDownload(); }}
+              title="Download photo"
+            >
+              <Download className="h-5 w-5" />
+            </Button>
+
             {/* Navigation Buttons */}
-            {files.length > 1 && (
+            {sortedFiles.length > 1 && (
               <>
                 <Button
                   variant="ghost"
@@ -995,11 +1354,11 @@ const WeddingGalleryUpload = () => {
 
             {/* Counter */}
             <div className="absolute top-4 left-1/2 -translate-x-1/2 text-white text-sm z-50 flex flex-col items-center gap-1">
-              <span>{currentImageIndex + 1} / {files.length}</span>
-              {files[currentImageIndex]?.uploadedBy && (
+              <span>{currentImageIndex + 1} / {sortedFiles.length}</span>
+              {sortedFiles[currentImageIndex]?.uploadedBy && (
                 <span className="flex items-center gap-1 text-white/70 text-xs">
                   <User className="h-3 w-3" />
-                  {files[currentImageIndex].uploadedBy}
+                  {sortedFiles[currentImageIndex].uploadedBy}
                 </span>
               )}
             </div>
@@ -1009,15 +1368,15 @@ const WeddingGalleryUpload = () => {
               className="max-w-7xl max-h-[85vh] w-full h-full flex items-center justify-center p-4 pb-20"
               onClick={(e) => e.stopPropagation()}
             >
-              {files[currentImageIndex].type === "image" ? (
+              {sortedFiles[currentImageIndex].type === "image" ? (
                 <img
-                  src={files[currentImageIndex].url}
-                  alt={files[currentImageIndex].name}
+                  src={sortedFiles[currentImageIndex].url}
+                  alt={sortedFiles[currentImageIndex].uploadedBy ? `Photo by ${sortedFiles[currentImageIndex].uploadedBy}` : sortedFiles[currentImageIndex].name}
                   className="max-w-full max-h-full object-contain"
                 />
               ) : (
                 <video
-                  src={files[currentImageIndex].url}
+                  src={sortedFiles[currentImageIndex].url}
                   controls
                   className="max-w-full max-h-full"
                   autoPlay
@@ -1033,7 +1392,7 @@ const WeddingGalleryUpload = () => {
               {/* Reaction Bar */}
               <div className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-full px-6 py-3 border border-white/20">
                 {(Object.keys(EMOJI_CONFIG) as EmojiType[]).map((emoji) => {
-                  const currentFile = files[currentImageIndex];
+                  const currentFile = sortedFiles[currentImageIndex];
                   const count = reactions[currentFile.id]?.[emoji] ?? 0;
                   const active = userReactions[currentFile.id]?.[emoji] ?? false;
                   const loading = reactingTo === currentFile.id + emoji;
@@ -1068,8 +1427,8 @@ const WeddingGalleryUpload = () => {
               >
                 <MessageCircle className="h-5 w-5" />
                 <span className="text-sm font-medium">
-                  {(comments[files[currentImageIndex].id] ?? []).length > 0
-                    ? (comments[files[currentImageIndex].id] ?? []).length
+                  {(comments[sortedFiles[currentImageIndex].id] ?? []).length > 0
+                    ? (comments[sortedFiles[currentImageIndex].id] ?? []).length
                     : "Comment"}
                 </span>
               </button>
@@ -1094,12 +1453,12 @@ const WeddingGalleryUpload = () => {
 
                     {/* Comments List */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-3 min-h-0">
-                      {(comments[files[currentImageIndex].id] ?? []).length === 0 ? (
+                      {(comments[sortedFiles[currentImageIndex].id] ?? []).length === 0 ? (
                         <p className="text-white/50 text-sm text-center py-6">
                           Be the first to leave a comment!
                         </p>
                       ) : (
-                        (comments[files[currentImageIndex].id] ?? []).map((c) => (
+                        (comments[sortedFiles[currentImageIndex].id] ?? []).map((c) => (
                           <div key={c.id} className="bg-white/10 rounded-xl px-3 py-2.5">
                             <div className="flex items-center gap-1.5 mb-1">
                               <User className="h-3 w-3 text-white/70" />
@@ -1127,14 +1486,14 @@ const WeddingGalleryUpload = () => {
                           onKeyDown={(e) => {
                             if (e.key === "Enter" && !e.shiftKey) {
                               e.preventDefault();
-                              handleAddComment(files[currentImageIndex].id);
+                              handleAddComment(sortedFiles[currentImageIndex].id);
                             }
                           }}
                           rows={2}
                           className="bg-white/10 border-white/20 text-white placeholder:text-white/40 text-sm resize-none focus-visible:ring-white/30 flex-1"
                         />
                         <button
-                          onClick={() => handleAddComment(files[currentImageIndex].id)}
+                          onClick={() => handleAddComment(sortedFiles[currentImageIndex].id)}
                           disabled={isSubmittingComment || !newCommentName.trim() || !newCommentMessage.trim()}
                           className="self-end p-2 rounded-full bg-white/20 hover:bg-white/30 text-white disabled:opacity-40 transition-all"
                         >
