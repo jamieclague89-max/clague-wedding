@@ -4,7 +4,7 @@ import BackToTop from "@/components/BackToTop";
 
 const WeddingGallery = () => {
   React.useEffect(() => {
-    document.title = "The Wedding Gallery | Jamie & Alex";
+    document.title = "The Wedding Gallery Uploader | Jamie & Alex";
   }, []);
 
   return (

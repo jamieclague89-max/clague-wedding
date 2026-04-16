@@ -40,6 +40,7 @@ export type Database = {
       }
       gallery_files: {
         Row: {
+          category: string | null
           created_at: string | null
           id: string
           name: string
@@ -49,6 +50,7 @@ export type Database = {
           url: string
         }
         Insert: {
+          category?: string | null
           created_at?: string | null
           id?: string
           name: string
@@ -58,6 +60,7 @@ export type Database = {
           url: string
         }
         Update: {
+          category?: string | null
           created_at?: string | null
           id?: string
           name?: string

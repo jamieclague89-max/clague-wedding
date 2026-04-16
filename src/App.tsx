@@ -5,6 +5,8 @@ import Reception from "@/pages/Reception";
 import Ceremony from "@/pages/Ceremony";
 import WeddingGallery from "@/pages/WeddingGallery";
 import HenPartyQuiz from "@/pages/HenPartyQuiz";
+import Gallery from "@/pages/Gallery";
+import Admin from "@/pages/Admin";
 
 function App() {
   return (
@@ -14,7 +16,9 @@ function App() {
           <Route path="/" element={<Home className="h-[17691px]" />} />
           <Route path="/reception" element={<Reception />} />
           <Route path="/ceremony" element={<Ceremony />} />
-          <Route path="/gallery" element={<WeddingGallery />} />
+          <Route path="/upload" element={<WeddingGallery />} />
+          <Route path="/gallery" element={<Gallery />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/hen-party-quiz" element={<HenPartyQuiz />} />
           {import.meta.env.VITE_TEMPO === "true" && (
             <Route path="/tempobook/*" element={null} />

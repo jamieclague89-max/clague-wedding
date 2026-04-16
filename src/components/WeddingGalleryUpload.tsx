@@ -720,7 +720,7 @@ const WeddingGalleryUpload = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="font-heading text-5xl mb-4">The Wedding Gallery</h1>
+            <h1 className="font-heading text-5xl mb-4">Upload Your Wedding Memories</h1>
             <p className="text-gray-600 max-w-2xl mx-auto text-lg">
               Help us capture every special moment! Upload your photos and videos from our wedding day to share with all our guests.
             </p>
