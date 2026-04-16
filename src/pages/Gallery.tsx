@@ -497,7 +497,7 @@ const Gallery = () => {
   return (
     <div className="bg-black text-white min-h-screen">
       {/* Hero Banner */}
-      <section className="relative h-screen min-h-[600px] overflow-hidden">
+      <section className="relative h-[65vh] md:h-screen min-h-[400px] md:min-h-[600px] overflow-hidden">
         <img
           src={`${window.location.origin}/images/Alex-Jamie-Hero-Banner.jpg`}
           alt="Alex & Jamie"
@@ -608,7 +608,7 @@ const Gallery = () => {
                   </button>
                 ))}
               </div>
-              <div className="pb-3">
+              <div className="pb-3 hidden">
                 <button
                   onClick={toggleSlideshow}
                   className={`flex items-center justify-center gap-2 w-full px-5 py-2 text-xs tracking-widest uppercase border transition-all ${
