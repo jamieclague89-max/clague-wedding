@@ -556,8 +556,8 @@ const Gallery = () => {
         {/* Category Filters + Slideshow */}
         <div className="sticky top-[calc(55px+32px)] md:top-[calc(55px+32px)] bg-white border-b border-gray-100 z-40">
           <div className="container mx-auto px-4 md:px-6 py-0">
-            <div className="flex items-center justify-between gap-4">
-              {/* Categories - horizontal scroll on mobile */}
+            {/* Desktop: categories + slideshow side by side */}
+            <div className="hidden md:flex items-center justify-between gap-4">
               <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide flex-1 py-4">
                 {CATEGORIES.map((cat) => (
                   <button
@@ -576,8 +576,6 @@ const Gallery = () => {
                   </button>
                 ))}
               </div>
-
-              {/* Slideshow button */}
               <button
                 onClick={toggleSlideshow}
                 className={`flex items-center gap-2 px-5 py-2 text-xs tracking-widest uppercase border transition-all flex-shrink-0 ${
@@ -589,6 +587,41 @@ const Gallery = () => {
                 <Play className="h-3.5 w-3.5" />
                 {slideshowActive ? "Stop" : "Play Slideshow"}
               </button>
+            </div>
+
+            {/* Mobile: categories full-width scrollable, slideshow below */}
+            <div className="md:hidden flex flex-col">
+              <div className="flex items-center gap-1 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden w-full py-3">
+                {CATEGORIES.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setActiveCategory(cat);
+                      setVisibleCount(ITEMS_PER_PAGE);
+                    }}
+                    className={`whitespace-nowrap px-4 py-1.5 text-xs tracking-widest uppercase transition-all border rounded-none flex-shrink-0 ${
+                      activeCategory === cat
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:text-black"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+              <div className="pb-3">
+                <button
+                  onClick={toggleSlideshow}
+                  className={`flex items-center justify-center gap-2 w-full px-5 py-2 text-xs tracking-widest uppercase border transition-all ${
+                    slideshowActive
+                      ? "bg-black text-white border-black"
+                      : "bg-white text-black border-black hover:bg-black hover:text-white"
+                  }`}
+                >
+                  <Play className="h-3.5 w-3.5" />
+                  {slideshowActive ? "Stop" : "Play Slideshow"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
