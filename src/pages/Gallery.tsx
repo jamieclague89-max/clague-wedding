@@ -654,7 +654,7 @@ const Gallery = () => {
                   <button
                     key={order}
                     onClick={() => setSortOrder(order)}
-                    className={`px-4 py-1.5 text-xs tracking-wide uppercase transition-all border ${
+                    className={`px-4 py-1.5 text-xs tracking-wide uppercase transition-all border flex items-center justify-center text-center min-h-[2.25rem] w-[4.5rem] sm:w-auto ${
                       sortOrder === order
                         ? "bg-black text-white border-black"
                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
