@@ -636,7 +636,7 @@ const Gallery = () => {
                   <button
                     key={val}
                     onClick={() => { setFilterUploader(val); setVisibleCount(ITEMS_PER_PAGE); }}
-                    className={`px-4 py-1.5 text-xs tracking-wide uppercase transition-all border leading-tight ${
+                    className={`flex items-center justify-center px-4 py-1.5 min-h-[2.5rem] text-xs tracking-wide uppercase transition-all border leading-tight text-center ${
                       filterUploader === val
                         ? "bg-black text-white border-black"
                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
