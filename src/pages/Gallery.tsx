@@ -631,12 +631,12 @@ const Gallery = () => {
           <div className="container mx-auto px-4 md:px-6 py-4 border-b border-gray-100">
             <div className="flex items-center justify-between gap-2 flex-wrap">
               {/* Filter buttons — left */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-stretch gap-2">
                 {(["all", "professional", "guest"] as const).map((val) => (
                   <button
                     key={val}
                     onClick={() => { setFilterUploader(val); setVisibleCount(ITEMS_PER_PAGE); }}
-                    className={`px-4 py-1.5 text-xs tracking-wide uppercase transition-all border ${
+                    className={`px-4 py-1.5 text-xs tracking-wide uppercase transition-all border leading-tight ${
                       filterUploader === val
                         ? "bg-black text-white border-black"
                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
