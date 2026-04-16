@@ -14,7 +14,6 @@ import {
   ArrowUpDown,
   Play,
   Share2,
-  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -108,7 +107,6 @@ const Gallery = () => {
   const [filterDate, setFilterDate] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [slideshowActive, setSlideshowActive] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const slideshowTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
@@ -496,79 +494,8 @@ const Gallery = () => {
     galleryRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "Ceremony", href: "/ceremony" },
-    { label: "Reception", href: "/reception" },
-    { label: "Upload", href: "/upload" },
-    { label: "Gallery", href: "/gallery" },
-  ];
-
   return (
     <div className="bg-black text-white min-h-screen">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-white/10">
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <a href="/">
-            <img
-              src="/images/J-A Wedding Logo.png"
-              alt="J & A Wedding Logo"
-              className="h-[55px] w-auto object-contain brightness-0 invert"
-            />
-          </a>
-
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden text-white"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className={`text-xs tracking-widest uppercase transition-colors ${
-                  link.href === "/gallery"
-                    ? "text-white border-b border-white pb-0.5"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                {link.label}
-              </a>
-            ))}
-          </div>
-        </div>
-
-        {/* Mobile dropdown */}
-        <AnimatePresence>
-          {isMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-black border-t border-white/10 overflow-hidden"
-            >
-              <div className="container mx-auto px-6 py-4 flex flex-col gap-4">
-                {navLinks.map((link) => (
-                  <a
-                    key={link.label}
-                    href={link.href}
-                    className="text-xs tracking-widest uppercase text-white/70 hover:text-white transition-colors"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    {link.label}
-                  </a>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
-
       {/* Hero Banner */}
       <section className="relative h-screen min-h-[600px] overflow-hidden">
         <img
