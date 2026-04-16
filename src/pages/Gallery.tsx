@@ -525,9 +525,19 @@ const Gallery = () => {
             >
               2nd April – 4th April 2026
             </motion.p>
+            {/* Mobile: View Gallery button below date */}
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              onClick={scrollToGallery}
+              className="sm:hidden mt-4 border border-white text-white text-xs tracking-widest uppercase px-5 py-2.5 hover:bg-white hover:text-black transition-all"
+            >
+              View Gallery
+            </motion.button>
           </div>
 
-          {/* Right: View Gallery button */}
+          {/* Right: View Gallery button (desktop only) */}
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -538,23 +548,12 @@ const Gallery = () => {
             View Gallery
           </motion.button>
         </div>
-
-        {/* Mobile view gallery button */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          onClick={scrollToGallery}
-          className="sm:hidden absolute bottom-6 right-6 border border-white text-white text-xs tracking-widest uppercase px-5 py-2.5 hover:bg-white hover:text-black transition-all"
-        >
-          View Gallery
-        </motion.button>
       </section>
 
       {/* Gallery Section */}
       <section ref={galleryRef} className="bg-white text-black">
         {/* Category Filters + Slideshow */}
-        <div className="sticky top-[calc(55px+32px)] md:top-[calc(55px+32px)] bg-white border-b border-gray-100 z-40">
+        <div className="bg-white border-b border-gray-100">
           <div className="container mx-auto px-4 md:px-6 py-0">
             {/* Desktop: categories + slideshow side by side */}
             <div className="hidden md:flex items-center justify-between gap-4">
