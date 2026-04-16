@@ -14,6 +14,7 @@ import {
   ArrowUpDown,
   Play,
   Share2,
+  SlidersHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -104,6 +105,8 @@ const Gallery = () => {
   const [visibleCount, setVisibleCount] = useState(ITEMS_PER_PAGE);
   const [sortOrder, setSortOrder] = useState<SortOrder>("newest");
   const [filterUploader, setFilterUploader] = useState<string>("all");
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [showSortPanel, setShowSortPanel] = useState(false);
   const [filterDate, setFilterDate] = useState<string>("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [slideshowActive, setSlideshowActive] = useState(false);
@@ -628,7 +631,76 @@ const Gallery = () => {
         {/* Sort / Filter Controls */}
         {!isLoadingGallery && !galleryError && files.length > 0 && (
           <div className="container mx-auto px-4 md:px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
+
+            {/* Mobile: icon toggle buttons */}
+            <div className="flex md:hidden items-center justify-between gap-2">
+              {/* Filter toggle */}
+              <button
+                onClick={() => { setShowFilterPanel((p) => !p); setShowSortPanel(false); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-wide uppercase border transition-all ${
+                  showFilterPanel || filterUploader !== "all"
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-gray-600 border-gray-200"
+                }`}
+              >
+                <SlidersHorizontal className="h-3.5 w-3.5" />
+                Filter{filterUploader !== "all" ? ` · ${filterUploader === "professional" ? "Pro" : "Guests"}` : ""}
+              </button>
+
+              {/* Sort toggle */}
+              <button
+                onClick={() => { setShowSortPanel((p) => !p); setShowFilterPanel(false); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-wide uppercase border transition-all ${
+                  showSortPanel || sortOrder !== "newest"
+                    ? "bg-black text-white border-black"
+                    : "bg-white text-gray-600 border-gray-200"
+                }`}
+              >
+                <ArrowUpDown className="h-3.5 w-3.5" />
+                Sort{sortOrder !== "newest" ? ` · ${sortOrder === "oldest" ? "Oldest" : "Liked"}` : ""}
+              </button>
+            </div>
+
+            {/* Mobile: expandable filter options */}
+            {showFilterPanel && (
+              <div className="flex md:hidden items-stretch gap-2 mt-3 flex-wrap">
+                {(["all", "professional", "guest"] as const).map((val) => (
+                  <button
+                    key={val}
+                    onClick={() => { setFilterUploader(val); setVisibleCount(ITEMS_PER_PAGE); setShowFilterPanel(false); }}
+                    className={`flex items-center justify-center px-4 py-1.5 min-h-[2.5rem] text-xs tracking-wide uppercase transition-all border leading-tight text-center ${
+                      filterUploader === val
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    {val === "all" ? "Everyone" : val === "professional" ? "Professional Photos" : "Guest Photos"}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Mobile: expandable sort options */}
+            {showSortPanel && (
+              <div className="flex md:hidden items-stretch gap-2 mt-3 flex-wrap">
+                {(["newest", "oldest", "most_liked"] as SortOrder[]).map((order) => (
+                  <button
+                    key={order}
+                    onClick={() => { setSortOrder(order); setShowSortPanel(false); }}
+                    className={`px-4 py-1.5 text-xs tracking-wide uppercase transition-all border flex items-center justify-center text-center min-h-[2.25rem] ${
+                      sortOrder === order
+                        ? "bg-black text-white border-black"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                    }`}
+                  >
+                    {order === "newest" ? "Newest" : order === "oldest" ? "Oldest" : "Most Liked"}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Desktop: always visible */}
+            <div className="hidden md:flex items-center justify-between gap-2 flex-wrap">
               {/* Filter buttons — left */}
               <div className="flex items-stretch gap-2">
                 {(["all", "professional", "guest"] as const).map((val) => (
@@ -665,7 +737,6 @@ const Gallery = () => {
                 ))}
               </div>
             </div>
-
 
           </div>
         )}
