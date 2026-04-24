@@ -152,9 +152,9 @@ const Gallery = () => {
       result = result.filter((f) => f.category === activeCategory);
     }
     if (filterUploader === "professional") {
-      result = result.filter((f) => f.uploadedBy === "Professional Photos");
+      result = result.filter((f) => f.uploadedBy === "Professional Photos & Videos");
     } else if (filterUploader === "guest") {
-      result = result.filter((f) => f.uploadedBy !== "Professional Photos");
+      result = result.filter((f) => f.uploadedBy !== "Professional Photos & Videos");
     }
     if (filterDate) {
       result = result.filter((f) => {
@@ -677,7 +677,7 @@ const Gallery = () => {
                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                     }`}
                   >
-                    {val === "all" ? "Everyone" : val === "professional" ? "Professional Photos" : "Guest Photos"}
+                    {val === "all" ? "Everyone" : val === "professional" ? "Professional Photos & Videos" : "Guest Photos"}
                   </button>
                 ))}
               </div>
@@ -716,7 +716,7 @@ const Gallery = () => {
                         : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
                     }`}
                   >
-                    {val === "all" ? "Everyone" : val === "professional" ? "Professional Photos" : "Guest Photos"}
+                    {val === "all" ? "Everyone" : val === "professional" ? "Professional Photos & Videos" : "Guest Photos"}
                   </button>
                 ))}
               </div>

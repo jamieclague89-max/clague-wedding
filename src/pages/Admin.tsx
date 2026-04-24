@@ -4,6 +4,7 @@ import {
   Loader2,
   Trash2,
   Tag,
+  Pencil,
   User,
   MessageCircle,
   ChevronDown,
@@ -174,6 +175,8 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [updatingCategory, setUpdatingCategory] = useState<string | null>(null);
+  const [editingAuthor, setEditingAuthor] = useState<string | null>(null);
+  const [editAuthorValue, setEditAuthorValue] = useState("");
   const [deletingComment, setDeletingComment] = useState<string | null>(null);
   const [deletingFile, setDeletingFile] = useState<string | null>(null);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
@@ -188,7 +191,7 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Upload state
-  const [uploaderName, setUploaderName] = useState("Admin");
+  const [uploaderName, setUploaderName] = useState("Professional Photos & Videos");
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
@@ -203,7 +206,7 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
   const [driveUrl, setDriveUrl] = useState("");
   const [driveName, setDriveName] = useState("");
   const [driveCategory, setDriveCategory] = useState("");
-  const [driveUploaderName, setDriveUploaderName] = useState("Admin");
+  const [driveUploaderName, setDriveUploaderName] = useState("Professional Photos & Videos");
   const [isSavingDriveLink, setIsSavingDriveLink] = useState(false);
   const [driveLinkError, setDriveLinkError] = useState<string | null>(null);
   const [driveLinkSuccess, setDriveLinkSuccess] = useState(false);
@@ -256,6 +259,19 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
     }
     setUpdatingCategory(null);
   }, [supabase]);
+
+  const handleAuthorSave = useCallback(async (fileId: string) => {
+    if (!supabase) return;
+    const value = editAuthorValue.trim() || "Anonymous";
+    const { error } = await supabase.from("gallery_files").update({ uploaded_by: value }).eq("id", fileId);
+    if (!error) {
+      setFiles((prev) =>
+        prev.map((f) => f.id === fileId ? { ...f, uploaded_by: value } : f)
+      );
+    }
+    setEditingAuthor(null);
+    setEditAuthorValue("");
+  }, [supabase, editAuthorValue]);
 
   const handleDeleteComment = useCallback(async (commentId: string, fileId: string) => {
     if (!supabase) return;
@@ -443,7 +459,7 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
       name: driveName.trim(),
       type: "video",
       url: embedUrl,
-      uploaded_by: driveUploaderName.trim() || "Admin",
+      uploaded_by: driveUploaderName.trim() || "Professional Photos & Videos",
       category: driveCategory || null,
     });
 
@@ -971,7 +987,39 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
                         <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400 mb-3">
                           <span className="flex items-center gap-1">
                             <User className="h-3 w-3" />
-                            {file.uploaded_by || "Anonymous"}
+                            {editingAuthor === file.id ? (
+                              <span className="flex items-center gap-1">
+                                <input
+                                  autoFocus
+                                  value={editAuthorValue}
+                                  onChange={(e) => setEditAuthorValue(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") handleAuthorSave(file.id);
+                                    if (e.key === "Escape") { setEditingAuthor(null); setEditAuthorValue(""); }
+                                  }}
+                                  className="border border-black text-black text-xs px-1.5 py-0.5 rounded-sm w-36 focus:outline-none"
+                                />
+                                <button
+                                  onClick={() => handleAuthorSave(file.id)}
+                                  className="text-black hover:text-green-600 font-medium px-1"
+                                  title="Save"
+                                >✓</button>
+                                <button
+                                  onClick={() => { setEditingAuthor(null); setEditAuthorValue(""); }}
+                                  className="text-gray-400 hover:text-red-500 px-1"
+                                  title="Cancel"
+                                >✕</button>
+                              </span>
+                            ) : (
+                              <span
+                                className="cursor-pointer hover:text-black hover:underline underline-offset-2 flex items-center gap-1 group"
+                                title="Click to edit author"
+                                onClick={() => { setEditingAuthor(file.id); setEditAuthorValue(file.uploaded_by || ""); }}
+                              >
+                                {file.uploaded_by || "Anonymous"}
+                                <Pencil className="h-2.5 w-2.5 opacity-0 group-hover:opacity-60 transition-opacity" />
+                              </span>
+                            )}
                           </span>
                           <span>
                             {new Date(file.uploaded_at).toLocaleDateString("en-GB", {
