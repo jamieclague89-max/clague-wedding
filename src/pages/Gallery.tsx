@@ -238,7 +238,7 @@ const Gallery = () => {
           type: file.type,
           url: file.url,
           uploadedAt: new Date(file.uploaded_at),
-          uploadedBy: file.uploaded_by || "Anonymous",
+          uploadedBy: (file.uploaded_by === "Professional Photos" ? "Professional Photos & Videos" : file.uploaded_by) || "Anonymous",
           category: file.category || undefined,
         }));
         setFiles(formattedFiles);
@@ -274,7 +274,7 @@ const Gallery = () => {
             type: file.type,
             url: file.url,
             uploadedAt: new Date(file.uploaded_at),
-            uploadedBy: file.uploaded_by || "Anonymous",
+            uploadedBy: (file.uploaded_by === "Professional Photos" ? "Professional Photos & Videos" : file.uploaded_by) || "Anonymous",
             category: file.category || undefined,
           },
           ...prev,
@@ -285,7 +285,11 @@ const Gallery = () => {
         setFiles((prev) =>
           prev.map((f) =>
             f.id === file.id
-              ? { ...f, category: file.category || undefined }
+              ? {
+                  ...f,
+                  category: file.category || undefined,
+                  uploadedBy: (file.uploaded_by === "Professional Photos" ? "Professional Photos & Videos" : file.uploaded_by) || "Anonymous",
+                }
               : f
           )
         );
