@@ -85,6 +85,9 @@ const getCloudinaryThumb = (url: string): string => {
   return `${base}w_600,h_600,c_fill,q_auto,f_auto/${rest}`;
 };
 
+const isGoogleDriveEmbed = (url: string) =>
+  url.includes("drive.google.com") && url.includes("/preview");
+
 const Gallery = () => {
   const galleryRef = useRef<HTMLDivElement>(null);
   const [files, setFiles] = useState<GalleryFile[]>([]);
@@ -810,16 +813,28 @@ const Gallery = () => {
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div
-                        className="relative w-full h-full"
-                      >
-                        <video
-                          src={file.url}
-                          className="w-full h-full object-cover"
-                          muted
-                          playsInline
-                          preload="none"
-                        />
+                      <div className="relative w-full h-full">
+                        {isGoogleDriveEmbed(file.url) ? (
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 gap-2">
+                            <svg className="h-10 w-10" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+                              <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+                              <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+                              <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+                              <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+                              <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+                              <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 27h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+                            </svg>
+                            <span className="text-white/70 text-xs tracking-wide">Google Drive Video</span>
+                          </div>
+                        ) : (
+                          <video
+                            src={file.url}
+                            className="w-full h-full object-cover"
+                            muted
+                            playsInline
+                            preload="none"
+                          />
+                        )}
                         <div className="absolute inset-0 flex items-center justify-center bg-black/40">
                           <div className="p-4 bg-white/20 backdrop-blur-sm rounded-full border border-white/40">
                             <Play className="h-7 w-7 text-white" />
@@ -1046,6 +1061,15 @@ const Gallery = () => {
                   src={sortedFiles[currentImageIndex].url}
                   alt={`Photo by ${sortedFiles[currentImageIndex].uploadedBy}`}
                   className="max-w-full max-h-full object-contain"
+                />
+              ) : isGoogleDriveEmbed(sortedFiles[currentImageIndex].url) ? (
+                <iframe
+                  src={sortedFiles[currentImageIndex].url}
+                  className="w-full max-w-4xl"
+                  style={{ height: "min(70vh, 540px)" }}
+                  allow="autoplay"
+                  allowFullScreen
+                  title={sortedFiles[currentImageIndex].name}
                 />
               ) : (
                 <video

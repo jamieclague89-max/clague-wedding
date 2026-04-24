@@ -19,6 +19,7 @@ import {
   EyeOff,
   Play,
   Search,
+  Link,
 } from "lucide-react";
 import { createClient, SupabaseClient } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
@@ -75,6 +76,23 @@ const getCloudinaryThumb = (url: string): string => {
   const base = url.slice(0, idx + uploadMarker.length);
   const rest = url.slice(idx + uploadMarker.length);
   return `${base}w_300,h_300,c_fill,q_auto,f_auto/${rest}`;
+};
+
+// Converts any Google Drive share link into a direct-playback / embed URL
+// Handles formats:
+//   https://drive.google.com/file/d/FILE_ID/view?usp=sharing
+//   https://drive.google.com/open?id=FILE_ID
+//   https://drive.google.com/uc?id=FILE_ID
+const getGoogleDriveDirectUrl = (url: string): string | null => {
+  // Already a direct/embed link
+  if (url.includes("drive.google.com/file/d/")) {
+    const match = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+    if (match) return `https://drive.google.com/file/d/${match[1]}/preview`;
+  }
+  // ?id= format
+  const idMatch = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if (idMatch) return `https://drive.google.com/file/d/${idMatch[1]}/preview`;
+  return null;
 };
 
 // ─── Login Screen ────────────────────────────────────────────────────────────
@@ -179,6 +197,16 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
   const [showUploadSection, setShowUploadSection] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
+
+  // Google Drive link state
+  const [showDriveLinkSection, setShowDriveLinkSection] = useState(false);
+  const [driveUrl, setDriveUrl] = useState("");
+  const [driveName, setDriveName] = useState("");
+  const [driveCategory, setDriveCategory] = useState("");
+  const [driveUploaderName, setDriveUploaderName] = useState("Admin");
+  const [isSavingDriveLink, setIsSavingDriveLink] = useState(false);
+  const [driveLinkError, setDriveLinkError] = useState<string | null>(null);
+  const [driveLinkSuccess, setDriveLinkSuccess] = useState(false);
 
   const supabase = useMemo<SupabaseClient | null>(() => {
     const url = import.meta.env.VITE_SUPABASE_URL;
@@ -397,6 +425,41 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
     handleFileSelect(e.dataTransfer.files);
   }, [handleFileSelect]);
 
+  const handleSaveDriveLink = useCallback(async () => {
+    setDriveLinkError(null);
+    setDriveLinkSuccess(false);
+    if (!supabase) { setDriveLinkError("Database not available."); return; }
+    if (!driveUrl.trim()) { setDriveLinkError("Please paste a Google Drive link."); return; }
+    if (!driveName.trim()) { setDriveLinkError("Please enter a name for this video."); return; }
+
+    const embedUrl = getGoogleDriveDirectUrl(driveUrl.trim());
+    if (!embedUrl) {
+      setDriveLinkError("Couldn't parse that link. Make sure it's a Google Drive share link (e.g. https://drive.google.com/file/d/.../view).");
+      return;
+    }
+
+    setIsSavingDriveLink(true);
+    const { error } = await supabase.from("gallery_files").insert({
+      name: driveName.trim(),
+      type: "video",
+      url: embedUrl,
+      uploaded_by: driveUploaderName.trim() || "Admin",
+      category: driveCategory || null,
+    });
+
+    if (error) {
+      setDriveLinkError(error.message || "Failed to save.");
+    } else {
+      setDriveLinkSuccess(true);
+      setDriveUrl("");
+      setDriveName("");
+      setDriveCategory("");
+      fetchData();
+      setTimeout(() => setDriveLinkSuccess(false), 4000);
+    }
+    setIsSavingDriveLink(false);
+  }, [supabase, driveUrl, driveName, driveCategory, driveUploaderName, fetchData]);
+
   const filteredFiles = useMemo(() => {
     let result = [...files];
     if (filterCategory !== "all") {
@@ -463,13 +526,21 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
         </div>
 
         {/* Upload Section Toggle */}
-        <div className="mb-6">
+        <div className="mb-6 flex items-center gap-3 flex-wrap">
           <button
             onClick={() => setShowUploadSection((v) => !v)}
             className="flex items-center gap-2 px-6 py-3 bg-black text-white text-xs tracking-widest uppercase hover:bg-black/80 transition-all"
           >
             <Upload className="h-4 w-4" />
             {showUploadSection ? "Hide Upload" : "Bulk Upload Files"}
+          </button>
+
+          <button
+            onClick={() => setShowDriveLinkSection((v) => !v)}
+            className="flex items-center gap-2 px-6 py-3 bg-white border border-black text-black text-xs tracking-widest uppercase hover:bg-gray-50 transition-all"
+          >
+            <Link className="h-4 w-4" />
+            {showDriveLinkSection ? "Hide Drive Link" : "Add Google Drive Video"}
           </button>
         </div>
 
@@ -587,6 +658,111 @@ const AdminPanel = ({ onLogout }: { onLogout: () => void }) => {
                     </div>
                   </div>
                 )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Google Drive Link Section */}
+        <AnimatePresence>
+          {showDriveLinkSection && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden mb-8"
+            >
+              <div className="bg-white border border-gray-200 rounded-lg p-6">
+                <div className="flex items-center gap-2 mb-1">
+                  <Link className="h-5 w-5 text-gray-500" />
+                  <h2 className="text-lg font-semibold text-black tracking-wide">Add Google Drive Video</h2>
+                </div>
+                <p className="text-xs text-gray-400 mb-5">
+                  Share the video in Google Drive → Copy link → Paste below. The video will be embedded using Google Drive's player.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Drive URL */}
+                  <div className="md:col-span-2">
+                    <Label className="text-xs tracking-widest uppercase text-gray-500 mb-1 block">Google Drive Share Link *</Label>
+                    <Input
+                      value={driveUrl}
+                      onChange={(e) => { setDriveUrl(e.target.value); setDriveLinkError(null); }}
+                      placeholder="https://drive.google.com/file/d/…/view?usp=sharing"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+
+                  {/* Name */}
+                  <div>
+                    <Label className="text-xs tracking-widest uppercase text-gray-500 mb-1 block">Video Name *</Label>
+                    <Input
+                      value={driveName}
+                      onChange={(e) => setDriveName(e.target.value)}
+                      placeholder="e.g. Main Wedding Video"
+                    />
+                  </div>
+
+                  {/* Category */}
+                  <div>
+                    <Label className="text-xs tracking-widest uppercase text-gray-500 mb-1 block">Category</Label>
+                    <div className="relative">
+                      <select
+                        value={driveCategory}
+                        onChange={(e) => setDriveCategory(e.target.value)}
+                        className="w-full text-sm border border-gray-200 px-3 py-2 pr-8 appearance-none focus:outline-none focus:border-black rounded-sm"
+                      >
+                        <option value="">— Uncategorised —</option>
+                        {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                      </select>
+                      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+
+                  {/* Uploader name */}
+                  <div>
+                    <Label className="text-xs tracking-widest uppercase text-gray-500 mb-1 block">Upload As (name)</Label>
+                    <Input
+                      value={driveUploaderName}
+                      onChange={(e) => setDriveUploaderName(e.target.value)}
+                      placeholder="Admin"
+                    />
+                  </div>
+                </div>
+
+                {/* Preview of parsed URL */}
+                {driveUrl && (() => {
+                  const parsed = getGoogleDriveDirectUrl(driveUrl.trim());
+                  return parsed ? (
+                    <p className="text-xs text-green-600 mb-3 flex items-center gap-1">
+                      <Check className="h-3.5 w-3.5" /> Link recognised — will embed as: <span className="font-mono truncate max-w-xs">{parsed}</span>
+                    </p>
+                  ) : (
+                    <p className="text-xs text-amber-600 mb-3 flex items-center gap-1">
+                      <AlertCircle className="h-3.5 w-3.5" /> Link format not recognised yet — make sure it's a Google Drive share link.
+                    </p>
+                  );
+                })()}
+
+                {driveLinkError && (
+                  <p className="text-xs text-red-500 mb-3 flex items-center gap-1">
+                    <AlertCircle className="h-3.5 w-3.5" /> {driveLinkError}
+                  </p>
+                )}
+                {driveLinkSuccess && (
+                  <p className="text-xs text-green-600 mb-3 flex items-center gap-1">
+                    <Check className="h-3.5 w-3.5" /> Video saved to gallery successfully!
+                  </p>
+                )}
+
+                <button
+                  onClick={handleSaveDriveLink}
+                  disabled={isSavingDriveLink}
+                  className="flex items-center gap-2 px-6 py-2.5 bg-black text-white text-xs tracking-widest uppercase hover:bg-black/80 disabled:opacity-50 transition-all"
+                >
+                  {isSavingDriveLink ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+                  {isSavingDriveLink ? "Saving…" : "Save to Gallery"}
+                </button>
               </div>
             </motion.div>
           )}
